@@ -14,8 +14,7 @@ upstream `AI_POLICY.md` contributor restrictions.
 - **Backend**: an eventual service to field these AI generation requests, enabling a free app with
   a paid "AI-enhanced experience" subscription tier.
 
-These are directional, not committed specs — see GitHub issues labeled `enhancement` for the
-current concrete, scoped work items derived from this roadmap.
+These are directional, not committed specs.
 
 ## Refactoring Scope
 - Constrain scope tightly: do not modify unrelated files, themes, or settings 'while you're in there'.

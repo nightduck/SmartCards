@@ -1,9 +1,21 @@
 ## Project
 SmartCards is a fork of AnkiDroid (`upstream` remote), repurposed as a language-learning
-flashcard app: multi-modal cards (audio-only prompts, images, example sentences, a collapsible
-explainer with meaning/context/synonyms), share-sheet capture of foreign words, and an eventual
-AI backend that auto-generates translations and card content. This is a solo, deliberately
-AI-driven project — it does not use AnkiDroid's upstream `AI_POLICY.md` contributor restrictions.
+flashcard app. This is a solo, deliberately AI-driven project — it does not use AnkiDroid's
+upstream `AI_POLICY.md` contributor restrictions.
+
+### Roadmap
+- **Multi-modal cards**: beyond AnkiDroid's existing two-sided text cards, support audio-only
+  prompts (no text cue), image-cued prompts, an example sentence field, and a collapsible
+  explainer (meaning / context / synonyms).
+- **Capture**: share-sheet integration — share a foreign word from anywhere on the phone to create
+  a new card in SmartCards.
+- **AI generation**: given a captured/created word, auto-generate its translation and all of the
+  above card content (image, example sentence, explainer).
+- **Backend**: an eventual service to field these AI generation requests, enabling a free app with
+  a paid "AI-enhanced experience" subscription tier.
+
+These are directional, not committed specs — see GitHub issues labeled `enhancement` for the
+current concrete, scoped work items derived from this roadmap.
 
 ## Refactoring Scope
 - Constrain scope tightly: do not modify unrelated files, themes, or settings 'while you're in there'.

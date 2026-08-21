@@ -9,33 +9,33 @@ package com.ichi2.anki.libanki
  * and built with the same field/template APIs a user's custom note type would use - see
  * [com.ichi2.anki.notetype.AddNewNotesType] for where it's offered to users.
  */
-const val AUDIO_PROMPT_NOTETYPE_NAME = "SmartCards Vocabulary"
+const val SMARTCARDS_NOTETYPE_NAME = "SmartCards Vocabulary"
 
-const val AUDIO_PROMPT_FIELD_WORD = "Word"
-const val AUDIO_PROMPT_FIELD_TRANSLATION = "Translation"
-const val AUDIO_PROMPT_FIELD_PHONETIC_SPELLING = "Phonetic Spelling"
-const val AUDIO_PROMPT_FIELD_AUDIO = "Audio"
-const val AUDIO_PROMPT_FIELD_IMAGE = "Image"
-const val AUDIO_PROMPT_FIELD_EXAMPLE_SENTENCE = "Example Sentence"
-const val AUDIO_PROMPT_FIELD_EXPLAINER = "Explainer"
+const val SMARTCARDS_FIELD_WORD = "Word"
+const val SMARTCARDS_FIELD_TRANSLATION = "Translation"
+const val SMARTCARDS_FIELD_PHONETIC_SPELLING = "Phonetic Spelling"
+const val SMARTCARDS_FIELD_AUDIO = "Audio"
+const val SMARTCARDS_FIELD_IMAGE = "Image"
+const val SMARTCARDS_FIELD_EXAMPLE_SENTENCE = "Example Sentence"
+const val SMARTCARDS_FIELD_EXPLAINER = "Explainer"
 
 /** Field order; index 0 is the sort field, mirroring the "Front" convention of Basic. */
-private val AUDIO_PROMPT_FIELD_NAMES =
+private val SMARTCARDS_FIELD_NAMES =
     listOf(
-        AUDIO_PROMPT_FIELD_WORD,
-        AUDIO_PROMPT_FIELD_TRANSLATION,
-        AUDIO_PROMPT_FIELD_PHONETIC_SPELLING,
-        AUDIO_PROMPT_FIELD_AUDIO,
-        AUDIO_PROMPT_FIELD_IMAGE,
-        AUDIO_PROMPT_FIELD_EXAMPLE_SENTENCE,
-        AUDIO_PROMPT_FIELD_EXPLAINER,
+        SMARTCARDS_FIELD_WORD,
+        SMARTCARDS_FIELD_TRANSLATION,
+        SMARTCARDS_FIELD_PHONETIC_SPELLING,
+        SMARTCARDS_FIELD_AUDIO,
+        SMARTCARDS_FIELD_IMAGE,
+        SMARTCARDS_FIELD_EXAMPLE_SENTENCE,
+        SMARTCARDS_FIELD_EXPLAINER,
     )
 
 private const val ANSWER_EXTRAS =
     """{{#Example Sentence}}<div class="example">{{Example Sentence}}</div>{{/Example Sentence}}
 {{#Explainer}}<details class="explainer"><summary>More</summary>{{Explainer}}</details>{{/Explainer}}"""
 
-private val AUDIO_PROMPT_TEMPLATES =
+private val SMARTCARDS_TEMPLATES =
     listOf(
         Triple(
             "Word → Translation",
@@ -73,7 +73,7 @@ $ANSWER_EXTRAS""",
         ),
     )
 
-private const val AUDIO_PROMPT_CSS =
+private const val SMARTCARDS_CSS =
     """.card {
     font-family: arial;
     font-size: 20px;
@@ -97,17 +97,17 @@ details.word-spoiler summary, details.explainer summary {
  * The caller is responsible for persisting the returned note type, e.g. via
  * `addNotetypeLegacy(BackendUtils.toJsonBytes(notetype))`.
  */
-fun Collection.newAudioPromptNotetype(name: String = AUDIO_PROMPT_NOTETYPE_NAME): NotetypeJson {
+fun Collection.newSmartCardsNotetype(name: String = SMARTCARDS_NOTETYPE_NAME): NotetypeJson {
     val notetype = notetypes.new(name)
-    for (fieldName in AUDIO_PROMPT_FIELD_NAMES) {
+    for (fieldName in SMARTCARDS_FIELD_NAMES) {
         notetypes.addField(notetype, notetypes.newField(fieldName))
     }
-    for ((templateName, qfmt, afmt) in AUDIO_PROMPT_TEMPLATES) {
+    for ((templateName, qfmt, afmt) in SMARTCARDS_TEMPLATES) {
         val template = notetypes.newTemplate(templateName)
         template.qfmt = qfmt
         template.afmt = afmt
         notetypes.add_template(notetype, template)
     }
-    notetype.css = AUDIO_PROMPT_CSS
+    notetype.css = SMARTCARDS_CSS
     return notetype
 }

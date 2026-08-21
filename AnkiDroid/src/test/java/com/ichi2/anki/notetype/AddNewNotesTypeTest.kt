@@ -22,7 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.libanki.AUDIO_PROMPT_NOTETYPE_NAME
+import com.ichi2.anki.libanki.SMARTCARDS_NOTETYPE_NAME
 import kotlinx.coroutines.launch
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
@@ -77,7 +77,7 @@ class AddNewNotesTypeTest : RobolectricTest() {
 
             assertThat(
                 "SmartCards Vocabulary is offered as an addable standard note type",
-                options.firstOrNull { it.contains(AUDIO_PROMPT_NOTETYPE_NAME) },
+                options.firstOrNull { it.contains(SMARTCARDS_NOTETYPE_NAME) },
                 notNullValue(),
             )
         }

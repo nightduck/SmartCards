@@ -30,7 +30,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.databinding.DialogNewNoteTypeBinding
 import com.ichi2.anki.launchCatchingTask
-import com.ichi2.anki.libanki.AUDIO_PROMPT_NOTETYPE_NAME
+import com.ichi2.anki.libanki.SMARTCARDS_NOTETYPE_NAME
 import com.ichi2.anki.libanki.Utils
 import com.ichi2.anki.libanki.addNotetype
 import com.ichi2.anki.libanki.addNotetypeLegacy
@@ -38,7 +38,7 @@ import com.ichi2.anki.libanki.backend.BackendUtils
 import com.ichi2.anki.libanki.getNotetype
 import com.ichi2.anki.libanki.getNotetypeNames
 import com.ichi2.anki.libanki.getStockNotetype
-import com.ichi2.anki.libanki.newAudioPromptNotetype
+import com.ichi2.anki.libanki.newSmartCardsNotetype
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.withProgress
 import com.ichi2.utils.customView
@@ -54,11 +54,11 @@ class AddNewNotesType(
 
     companion object {
         /**
-         * A sentinel [AddNotetypeUiModel.id] identifying the SmartCards "audio prompt" note type
+         * A sentinel [AddNotetypeUiModel.id] identifying the "SmartCards Vocabulary" note type
          * option, since it's not a [StockNotetype.Kind] and has no backend-assigned number.
          * [StockNotetype.Kind] numbers are always >= 0, so a negative id can't collide with one.
          */
-        private const val AUDIO_PROMPT_SENTINEL_ID = -1L
+        private const val SMARTCARDS_SENTINEL_ID = -1L
     }
 
     suspend fun showAddNewNotetypeDialog() {
@@ -66,6 +66,9 @@ class AddNewNotesType(
         val (allOptions, currentNames) =
             activity.withProgress {
                 withCol {
+                    // "Stock" note types (Basic, Cloze, ...) are compiled into the on-device Rust
+                    // backend (librsdroid.so) - getStockNotetype() is a local, offline lookup, not
+                    // a network call to AnkiWeb or any other Anki service.
                     val standardNotetypesModels =
                         StockNotetype.Kind.entries
                             .filter { it != StockNotetype.Kind.UNRECOGNIZED }
@@ -82,8 +85,8 @@ class AddNewNotesType(
                             addAll(standardNotetypesModels)
                             add(
                                 AddNotetypeUiModel(
-                                    id = AUDIO_PROMPT_SENTINEL_ID,
-                                    name = AUDIO_PROMPT_NOTETYPE_NAME,
+                                    id = SMARTCARDS_SENTINEL_ID,
+                                    name = SMARTCARDS_NOTETYPE_NAME,
                                     isStandard = true,
                                 ),
                             )
@@ -191,8 +194,8 @@ class AddNewNotesType(
     ) {
         activity.launchCatchingTask {
             withCol {
-                if (selectedOption.id == AUDIO_PROMPT_SENTINEL_ID) {
-                    val notetype = newAudioPromptNotetype(newName)
+                if (selectedOption.id == SMARTCARDS_SENTINEL_ID) {
+                    val notetype = newSmartCardsNotetype(newName)
                     addNotetypeLegacy(BackendUtils.toJsonBytes(notetype))
                 } else {
                     val kind = StockNotetype.Kind.forNumber(selectedOption.id.toInt())

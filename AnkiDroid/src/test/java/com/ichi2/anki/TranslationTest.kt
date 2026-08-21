@@ -180,7 +180,6 @@ class TranslationTest : RobolectricTest() {
                 "Again", // R.string.ease_button_again
                 // TR.browsingAgainToday()
                 // TR.studyingAgain()
-                "All", // R.string.hide_system_bars_all_bars | TR.statisticsTrueRetentionAll()
                 "Always", // R.string.sync_media_always
                 // TR.preferencesAlways()
                 // TR.importingUpdateAlways()
@@ -190,7 +189,7 @@ class TranslationTest : RobolectricTest() {
                 "Cancel", // R.string.dialog_cancel
                 // TR.actionsCancel()
                 // TR.syncCancelButton()
-                "Card", // R.string.card, R.string.reviewer_frame_style_card
+                "Card", // R.string.card
                 // TR.browsingCard()
                 "Cards", // R.string.show_cards
                 // TR.browsingCards()

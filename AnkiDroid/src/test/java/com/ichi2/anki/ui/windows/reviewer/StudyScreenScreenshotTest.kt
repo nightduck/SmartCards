@@ -19,7 +19,6 @@ class StudyScreenScreenshotTest : ScreenshotTest() {
         @TestParameter showAnswerButtons: Boolean,
         @TestParameter frameStyle: FrameStyle,
     ) {
-        Prefs.isNewStudyScreenEnabled = true
         Prefs.toolbarPosition = toolbarPosition
         Prefs.showAnswerButtons = showAnswerButtons
         Prefs.frameStyle = frameStyle

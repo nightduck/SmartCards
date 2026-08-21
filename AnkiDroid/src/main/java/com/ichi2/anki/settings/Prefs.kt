@@ -405,7 +405,12 @@ open class PrefsRepository(
         get() = getBoolean(R.string.developer_options_enabled_by_user_key, false) || BuildConfig.DEBUG
         set(value) = putBoolean(R.string.developer_options_enabled_by_user_key, value)
 
-    var isNewStudyScreenEnabled by booleanPref(R.string.new_reviewer_options_key, true)
+    /**
+     * Always true. There is no longer a Settings toggle to switch back to the legacy [com.ichi2.anki.Reviewer];
+     * the legacy Activity and the code that branches on this stay in the tree, unreachable from the UI,
+     * until they're removed outright.
+     */
+    val isNewStudyScreenEnabled: Boolean = true
 
     val devIsCardBrowserFragmented: Boolean
         get() = getBoolean(R.string.dev_card_browser_fragmented, false)

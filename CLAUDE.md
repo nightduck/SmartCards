@@ -29,3 +29,6 @@ These are directional, not committed specs.
   (`./gradlew lintAll ktLintCheck lint-rules:test`, `./gradlew jacocoUnitTestReport`).
 - Before considering a PR ready for human review, run it through the `pr-full-review` skill
   (`.agents/skills/pr-full-review`) against the current branch.
+- Never open issues, make comments, or submit PRs to any repository other than 
+  nightduck/SmartCards. Do not perform any write operations of any kind outside the scope
+  of this project, especially not in the upstream repo, ankidroid/Anki-Android

@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// SPDX-FileCopyrightText: 2026 Ashish Yadav <mailtoashish693@gmail.com>
 
 package com.ichi2.compose.theme
 

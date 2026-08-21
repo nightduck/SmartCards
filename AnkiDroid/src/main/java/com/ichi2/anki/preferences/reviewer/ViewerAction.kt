@@ -11,6 +11,7 @@ import androidx.annotation.IdRes
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
+import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.ALWAYS
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.DISABLED
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.MENU_ONLY
@@ -182,6 +183,7 @@ enum class ViewerAction(
                     keycode(KeyEvent.KEYCODE_BUTTON_X, side = CardSide.ANSWER),
                     keycode(KeyEvent.KEYCODE_2, side = CardSide.ANSWER),
                     keycode(KeyEvent.KEYCODE_NUMPAD_2, side = CardSide.ANSWER),
+                    gesture(Gesture.SWIPE_LEFT, side = CardSide.ANSWER),
                 )
             ANSWER_GOOD ->
                 listOf(
@@ -192,6 +194,7 @@ enum class ViewerAction(
                     keycode(KeyEvent.KEYCODE_SPACE, side = CardSide.ANSWER),
                     keycode(KeyEvent.KEYCODE_ENTER, side = CardSide.ANSWER),
                     keycode(KeyEvent.KEYCODE_NUMPAD_ENTER, side = CardSide.ANSWER),
+                    gesture(Gesture.SWIPE_RIGHT, side = CardSide.ANSWER),
                 )
             ANSWER_EASY ->
                 listOf(
@@ -204,6 +207,10 @@ enum class ViewerAction(
                     keycode(KeyEvent.KEYCODE_SPACE, side = CardSide.QUESTION),
                     keycode(KeyEvent.KEYCODE_ENTER, side = CardSide.QUESTION),
                     keycode(KeyEvent.KEYCODE_NUMPAD_ENTER, side = CardSide.QUESTION),
+                    // Pair the ANSWER_HARD/ANSWER_GOOD swipes with "flip and answer" on the
+                    // question side, so the same swipe first reveals the answer.
+                    gesture(Gesture.SWIPE_LEFT, side = CardSide.QUESTION),
+                    gesture(Gesture.SWIPE_RIGHT, side = CardSide.QUESTION),
                 )
             }
             // No default gestures
@@ -325,6 +332,14 @@ enum class ViewerAction(
         side: CardSide = CardSide.BOTH,
     ): ReviewerBinding {
         val binding = Binding.unicode(unicodeChar, keys)
+        return ReviewerBinding(binding = binding, side = side)
+    }
+
+    private fun gesture(
+        gesture: Gesture,
+        side: CardSide = CardSide.BOTH,
+    ): ReviewerBinding {
+        val binding = Binding.gesture(gesture)
         return ReviewerBinding(binding = binding, side = side)
     }
 

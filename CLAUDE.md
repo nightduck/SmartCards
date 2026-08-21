@@ -1,7 +1,8 @@
 ## Project
-SmartCards is a fork of AnkiDroid (`upstream` remote), repurposed as a language-learning
-flashcard app. This is a solo, deliberately AI-driven project — it does not use AnkiDroid's
-upstream `AI_POLICY.md` contributor restrictions.
+SmartCards is a language-learning flashcard app descended from AnkiDroid, tracked as the
+`upstream` remote. It is no longer part of AnkiDroid's GitHub fork network — refer to it as
+"descended from" or "based on" AnkiDroid, not as a fork. This is a solo, deliberately AI-driven
+project — it does not use AnkiDroid's upstream `AI_POLICY.md` contributor restrictions.
 
 ### Roadmap
 - **Multi-modal cards**: beyond AnkiDroid's existing two-sided text cards, support audio-only

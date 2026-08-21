@@ -23,6 +23,7 @@ import com.ichi2.anki.libanki.testutils.ext.newNote
 import net.ankiweb.rsdroid.exceptions.BackendDeckIsFilteredException
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.json.JSONObject
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -212,5 +213,55 @@ class DecksTest : InMemoryAnkiTest() {
         assertThat("filtered deck", decks.cardCount(filteredDeck, includeSubdecks = false), equalTo(1))
 
         assertThat("filtered and home deck", decks.cardCount(deckWithNoChildren, filteredDeck, includeSubdecks = false), equalTo(3))
+    }
+
+    /*
+     * Arbitrary deck metadata round-tripping (#16)
+     *
+     * The backend's `anki.decks.Deck.Common` proto has an `other` bytes field which parks
+     * any legacy JSON keys it doesn't recognise (see the KDoc on [Deck]). These tests pin
+     * down that this undocumented-but-relied-upon behaviour actually round-trips, since
+     * a future backend upgrade could silently drop it.
+     */
+
+    @Test
+    fun unrecognisedDeckKeySurvivesSaveRoundTrip() {
+        val did = addDeck("deck")
+        val deck = col.decks.getLegacy(did)!!
+        deck.put("smartcardsLanguage", "fr")
+        col.decks.save(deck)
+
+        val reloaded = col.decks.getLegacy(did)!!
+        assertEquals("fr", reloaded.getString("smartcardsLanguage"))
+
+        // the unrecognised key must not clobber known keys
+        assertEquals("deck", reloaded.name)
+        assertEquals(deck.description, reloaded.description)
+        assertEquals(deck.collapsed, reloaded.collapsed)
+    }
+
+    @Test
+    fun unrecognisedNestedDeckKeySurvivesSaveRoundTrip() {
+        val did = addDeck("deck")
+        val deck = col.decks.getLegacy(did)!!
+        val nested = JSONObject().put("code", "fr").put("script", "latin")
+        deck.put("smartcardsMeta", nested)
+        col.decks.save(deck)
+
+        val reloadedMeta = col.decks.getLegacy(did)!!.getJSONObject("smartcardsMeta")
+        assertEquals("fr", reloadedMeta.getString("code"))
+        assertEquals("latin", reloadedMeta.getString("script"))
+    }
+
+    @Test
+    fun unrecognisedDeckKeySurvivesUpdateDictRoundTrip() {
+        val did = addDeck("deck")
+        val deck = col.decks.getLegacy(did)!!
+        deck.put("smartcardsLanguage", "es")
+        col.decks.updateDict(deck)
+
+        val reloaded = col.decks.getLegacy(did)!!
+        assertEquals("es", reloaded.getString("smartcardsLanguage"))
+        assertEquals("deck", reloaded.name)
     }
 }

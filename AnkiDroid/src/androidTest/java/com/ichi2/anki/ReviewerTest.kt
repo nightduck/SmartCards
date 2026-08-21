@@ -3,21 +3,15 @@
 
 package com.ichi2.anki
 
-import androidx.core.content.edit
-import androidx.recyclerview.widget.RecyclerView
+import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withResourceName
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.tests.checkWithTimeout
 import com.ichi2.anki.tests.libanki.RetryRule
@@ -35,7 +29,6 @@ import org.hamcrest.Matchers.equalTo
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import timber.log.Timber
 import java.lang.AssertionError
 
 @RunWith(AndroidJUnit4::class)
@@ -55,17 +48,6 @@ class ReviewerTest : InstrumentedTest() {
 
     @get:Rule
     val retry = RetryRule(10)
-
-    override fun runBeforeEachTest() {
-        super.runBeforeEachTest()
-
-        // 17298: for an unknown reason, we were using the beta Reviewer
-        // This works on my MacBook, fails in CI
-        // failure is due to the card not being flipped
-        // since the feature is currently in beta and unexpectedly enabled, disable it
-        // TODO: remove this
-        disableNewReviewer()
-    }
 
     @Test
     @Flaky(os = OS.ALL, "Fails on CI with timing issues frequently")
@@ -135,31 +117,14 @@ class ReviewerTest : InstrumentedTest() {
         ensureAnswerButtonsAreDisplayed()
     }
 
-    private fun clickOnDeckWithName(deckName: String) {
-        onView(withId(R.id.decks)).checkWithTimeout(matches(hasDescendant(withText(deckName))))
-        onView(withId(R.id.decks)).perform(
-            RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
-                hasDescendant(withText(deckName)),
-                click(),
-            ),
-        )
-    }
-
-    private fun clickOnStudyButtonIfExists() {
-        onView(withId(R.id.studyoptions_start))
-            .withFailureHandler { _, _ -> }
-            .perform(click())
-    }
-
+    // This test file specifically exercises the legacy Reviewer Activity, which is no longer
+    // reachable via normal navigation (there's no Settings toggle back to it), so launch it
+    // directly rather than tapping through DeckPicker.
+    // TODO: remove this test file once the legacy Reviewer Activity is removed.
     private fun reviewDeckWithName(deckName: String) {
-        clickOnDeckWithName(deckName)
-        // Adding cards directly to the database while in the Deck Picker screen
-        // will not update the page with correct card counts. Hence, clicking
-        // on the deck will bring us to the study options page where we need to
-        // click on the Study button. If we have added cards to the database
-        // before the Deck Picker screen has fully loaded, then we skip clicking
-        // the Study button
-        clickOnStudyButtonIfExists()
+        val deckId = col.decks.byName(deckName)!!.id
+        col.decks.select(deckId)
+        ActivityScenario.launch(Reviewer::class.java)
     }
 
     private fun clickShowAnswerAndAnswerGood() {
@@ -201,18 +166,6 @@ class ReviewerTest : InstrumentedTest() {
                 matches(isDisplayed()),
                 100,
             )
-        }
-    }
-
-    private fun disableNewReviewer() {
-        val newReviewerPrefKey = testContext.getString(R.string.new_reviewer_options_key)
-        val prefs = testContext.sharedPrefs()
-        val isUsingNewReviewer = prefs.getBoolean(newReviewerPrefKey, false)
-        if (!isUsingNewReviewer) return
-
-        Timber.w("unexpectedly using new reviewer: disabling it")
-        prefs.edit {
-            putBoolean(newReviewerPrefKey, false)
         }
     }
 }

@@ -7,6 +7,7 @@ import android.content.res.Resources
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.ivanshafran.sharedpreferencesmock.SPMockBuilder
 import com.ichi2.anki.EmptyApplicationCategory
+import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.utils.append
 import com.ichi2.anki.preferences.HeaderFragment
@@ -147,7 +148,18 @@ class PrefsRobolectricTest : RobolectricTest() {
                         PreferenceTestUtils.attrToStringArray(it["entryValues"]!!, targetContext).toList()
                 }
 
+        // These enums still drive real reviewer behavior, but the only Settings screen that let
+        // users pick their values ("New Study Screen") has been removed, along with any way to
+        // switch back to the legacy Reviewer, so no reachable ListPreference defines their values.
+        val keysWithoutAReachableListPreference =
+            setOf(
+                targetContext.getString(R.string.reviewer_frame_style_key),
+                targetContext.getString(R.string.hide_system_bars_key),
+                targetContext.getString(R.string.reviewer_toolbar_position_key),
+            )
+
         for ((key, enumValues) in prefsEnumKeysAndValues) {
+            if (key in keysWithoutAReachableListPreference) continue
             assertContains(listPreferences, key)
             assertEquals(enumValues, listPreferences[key])
         }

@@ -15,8 +15,8 @@ comments or reviews, approve, request changes, label, or merge.
 Accepts a PR number, a PR URL, or no argument (in which case, review the current branch against `origin/main`):
 
 ```bash
-pr-full-review 11
-pr-full-review https://github.com/nightduck/SmartCards/pull/11
+pr-full-review 39
+pr-full-review https://github.com/nightduck/SmartCards/pull/39
 pr-full-review review the checked-out branch's diff against `main`
 ```
 

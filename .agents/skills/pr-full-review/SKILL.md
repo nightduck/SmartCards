@@ -1,6 +1,6 @@
 ---
 name: pr-full-review
-description: Review a SmartCards pull request or branch against AnkiDroid's conventions (inherited by this fork).
+description: Review a SmartCards pull request or branch against AnkiDroid's conventions, which SmartCards inherits.
 ---
 
 # SmartCards PR Full Review
@@ -23,7 +23,7 @@ pr-full-review review the checked-out branch's diff against `main`
 ## Fetching the PR
 
 Fetch the PR with the `gh` command. When reading the PR, always pass `--repo nightduck/SmartCards`
-so a bare number resolves against this fork rather than the AnkiDroid upstream.
+so a bare number resolves against SmartCards rather than the AnkiDroid upstream.
 
 **Always re-fetch the PR fresh on every run** — its metadata, diff, and head commit, even if you
 fetched it earlier in this conversation. PRs change between reviews; never reuse cached context.

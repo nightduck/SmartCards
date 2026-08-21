@@ -2,7 +2,7 @@
 
 ## How to use this guide
 
-SmartCards is a fork of AnkiDroid and inherits its coding and review conventions. This is
+SmartCards is descended from AnkiDroid and inherits its coding and review conventions. This is
 the **standards corpus** for reviewing SmartCards changes - *what* to check, not
 *how* to run a review. It distills the project's documented standards into an actionable
 checklist so a reviewer (human or agent) can work without opening ten other files.
@@ -18,7 +18,7 @@ Two rules of engagement:
 ## Tone
 
 From the [Code-review guide](https://github.com/ankidroid/Anki-Android/wiki/Code-review-guide)
-(AnkiDroid's upstream wiki - kept deliberately, SmartCards has not forked its own):
+(AnkiDroid's upstream wiki - kept deliberately, SmartCards has no wiki of its own):
 
 - **Establish contributor status first.** Check for the `New Contributor` label and count the
   author's PRs, merged and unmerged (`gh pr list --author <login> --state all`), to gauge how

@@ -16,14 +16,17 @@
 package com.ichi2.anki.notetype
 
 import android.widget.EditText
+import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.libanki.AUDIO_PROMPT_NOTETYPE_NAME
 import kotlinx.coroutines.launch
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.notNullValue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowDialog
@@ -56,5 +59,26 @@ class AddNewNotesTypeTest : RobolectricTest() {
             // empty string should disable it again
             nameInput.setText("")
             assertThat("OK button disabled for empty name", positiveButton.isEnabled, equalTo(false))
+        }
+
+    @Test
+    fun `add note type - SmartCards Vocabulary is offered as a standard note type`() =
+        runTest {
+            val activity = startRegularActivity<ManageNotetypes>()
+            val addNewNotesType = AddNewNotesType(activity)
+            activity.lifecycleScope.launch {
+                addNewNotesType.showAddNewNotetypeDialog()
+            }
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+            val typeSpinner = dialog.findViewById<Spinner>(R.id.notetype_new_type)!!
+            val options = (0 until typeSpinner.adapter.count).map { typeSpinner.adapter.getItem(it) as String }
+
+            assertThat(
+                "SmartCards Vocabulary is offered as an addable standard note type",
+                options.firstOrNull { it.contains(AUDIO_PROMPT_NOTETYPE_NAME) },
+                notNullValue(),
+            )
         }
 }

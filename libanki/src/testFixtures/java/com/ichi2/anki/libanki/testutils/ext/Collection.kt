@@ -17,12 +17,14 @@
 package com.ichi2.anki.libanki.testutils.ext
 
 import anki.notetypes.StockNotetype
+import com.ichi2.anki.libanki.AUDIO_PROMPT_NOTETYPE_NAME
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.Note
 import com.ichi2.anki.libanki.NotetypeJson
 import com.ichi2.anki.libanki.addNotetypeLegacy
 import com.ichi2.anki.libanki.backend.BackendUtils
 import com.ichi2.anki.libanki.getStockNotetype
+import com.ichi2.anki.libanki.newAudioPromptNotetype
 
 const val BASIC_NOTE_TYPE_NAME = "Basic"
 
@@ -60,6 +62,18 @@ fun Collection.createBasicTypingNoteType(name: String): NotetypeJson {
     }
     notetypes.save(noteType)
     return noteType
+}
+
+/**
+ * Creates SmartCards' custom "audio prompt" vocabulary note type.
+ *
+ * @param name name of the new model
+ * @return the new model
+ */
+fun Collection.createAudioPromptNoteType(name: String = AUDIO_PROMPT_NOTETYPE_NAME): NotetypeJson {
+    val noteType = newAudioPromptNotetype(name)
+    addNotetypeLegacy(BackendUtils.toJsonBytes(noteType))
+    return notetypes.byName(name)!!
 }
 
 /**

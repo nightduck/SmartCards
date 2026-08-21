@@ -30,6 +30,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.databinding.DialogNewNoteTypeBinding
 import com.ichi2.anki.launchCatchingTask
+import com.ichi2.anki.libanki.AUDIO_PROMPT_NOTETYPE_NAME
 import com.ichi2.anki.libanki.Utils
 import com.ichi2.anki.libanki.addNotetype
 import com.ichi2.anki.libanki.addNotetypeLegacy
@@ -37,6 +38,7 @@ import com.ichi2.anki.libanki.backend.BackendUtils
 import com.ichi2.anki.libanki.getNotetype
 import com.ichi2.anki.libanki.getNotetypeNames
 import com.ichi2.anki.libanki.getStockNotetype
+import com.ichi2.anki.libanki.newAudioPromptNotetype
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.withProgress
 import com.ichi2.utils.customView
@@ -49,6 +51,15 @@ class AddNewNotesType(
     private val activity: ManageNotetypes,
 ) {
     private lateinit var binding: DialogNewNoteTypeBinding
+
+    companion object {
+        /**
+         * A sentinel [AddNotetypeUiModel.id] identifying the SmartCards "audio prompt" note type
+         * option, since it's not a [StockNotetype.Kind] and has no backend-assigned number.
+         * [StockNotetype.Kind] numbers are always >= 0, so a negative id can't collide with one.
+         */
+        private const val AUDIO_PROMPT_SENTINEL_ID = -1L
+    }
 
     suspend fun showAddNewNotetypeDialog() {
         binding = DialogNewNoteTypeBinding.inflate(LayoutInflater.from(activity))
@@ -69,6 +80,13 @@ class AddNewNotesType(
                     Pair(
                         mutableListOf<AddNotetypeUiModel>().apply {
                             addAll(standardNotetypesModels)
+                            add(
+                                AddNotetypeUiModel(
+                                    id = AUDIO_PROMPT_SENTINEL_ID,
+                                    name = AUDIO_PROMPT_NOTETYPE_NAME,
+                                    isStandard = true,
+                                ),
+                            )
                             addAll(foundNotetypes.map { it.toUiModel() })
                         },
                         foundNotetypes.map { it.name },
@@ -173,12 +191,17 @@ class AddNewNotesType(
     ) {
         activity.launchCatchingTask {
             withCol {
-                val kind = StockNotetype.Kind.forNumber(selectedOption.id.toInt())
-                val updatedStandardNotetype =
-                    getStockNotetype(kind).apply {
-                        name = newName
-                    }
-                addNotetypeLegacy(BackendUtils.toJsonBytes(updatedStandardNotetype))
+                if (selectedOption.id == AUDIO_PROMPT_SENTINEL_ID) {
+                    val notetype = newAudioPromptNotetype(newName)
+                    addNotetypeLegacy(BackendUtils.toJsonBytes(notetype))
+                } else {
+                    val kind = StockNotetype.Kind.forNumber(selectedOption.id.toInt())
+                    val updatedStandardNotetype =
+                        getStockNotetype(kind).apply {
+                            name = newName
+                        }
+                    addNotetypeLegacy(BackendUtils.toJsonBytes(updatedStandardNotetype))
+                }
             }
             activity.viewModel.refreshNoteTypes()
         }

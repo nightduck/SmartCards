@@ -42,19 +42,9 @@ class AnswerAreaViewTest {
     }
 
     @Test
-    fun `clicking show answer button calls onShowAnswerClicked`() {
-        val onShowAnswer: () -> Unit = mock()
-        answerArea.setButtonListeners(onRatingClicked = {}, onShowAnswerClicked = onShowAnswer)
-
-        binding.showAnswerButton.performClick()
-
-        verify(onShowAnswer).invoke()
-    }
-
-    @Test
     fun `clicking rating buttons calls onRatingClicked with correct rating`() {
         val onRating: (Rating) -> Unit = mock()
-        answerArea.setButtonListeners(onRatingClicked = onRating, onShowAnswerClicked = {})
+        answerArea.setButtonListeners(onRatingClicked = onRating)
 
         fun AnswerButton.invokesCallbackWith(rating: Rating) {
             performClick()
@@ -67,18 +57,16 @@ class AnswerAreaViewTest {
     }
 
     @Test
-    fun `setAnswerState(true) shows rating buttons and hides show answer button`() {
+    fun `setAnswerState(true) shows rating buttons`() {
         answerArea.setAnswerState(isAnswerShown = true)
 
-        assertEquals(View.INVISIBLE, binding.showAnswerButton.visibility)
         assertEquals(View.VISIBLE, binding.answerButtonsLayout.visibility)
     }
 
     @Test
-    fun `setAnswerState(false) hides rating buttons and shows show answer button`() {
+    fun `setAnswerState(false) hides rating buttons`() {
         answerArea.setAnswerState(isAnswerShown = false)
 
-        assertEquals(View.VISIBLE, binding.showAnswerButton.visibility)
         assertEquals(View.INVISIBLE, binding.answerButtonsLayout.visibility)
     }
 

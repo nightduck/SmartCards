@@ -357,10 +357,7 @@ class ReviewerFragment :
             return
         }
 
-        binding.answerArea.setButtonListeners(
-            onRatingClicked = { viewModel.answerCard(it) },
-            onShowAnswerClicked = { viewModel.onShowAnswer() },
-        )
+        binding.answerArea.setButtonListeners(onRatingClicked = { viewModel.answerCard(it) })
 
         binding.answerArea.setRelativeHeight(Prefs.newStudyScreenAnswerButtonSize)
 

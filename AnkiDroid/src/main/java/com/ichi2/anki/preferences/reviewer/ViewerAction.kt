@@ -11,6 +11,7 @@ import androidx.annotation.IdRes
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
+import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.ALWAYS
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.DISABLED
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.MENU_ONLY
@@ -204,6 +205,18 @@ enum class ViewerAction(
                     keycode(KeyEvent.KEYCODE_SPACE, side = CardSide.QUESTION),
                     keycode(KeyEvent.KEYCODE_ENTER, side = CardSide.QUESTION),
                     keycode(KeyEvent.KEYCODE_NUMPAD_ENTER, side = CardSide.QUESTION),
+                    // Tapping the card reveals the answer. Every single-tap zone is bound (rather
+                    // than just e.g. TAP_CENTER) so this works regardless of the user's configured
+                    // TapGestureMode (four-point or nine-point) - see GestureParser.
+                    gesture(Gesture.TAP_TOP_LEFT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_TOP, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_TOP_RIGHT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_LEFT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_CENTER, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_RIGHT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_BOTTOM_LEFT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_BOTTOM, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_BOTTOM_RIGHT, side = CardSide.QUESTION),
                 )
             }
             // No default gestures
@@ -325,6 +338,14 @@ enum class ViewerAction(
         side: CardSide = CardSide.BOTH,
     ): ReviewerBinding {
         val binding = Binding.unicode(unicodeChar, keys)
+        return ReviewerBinding(binding = binding, side = side)
+    }
+
+    private fun gesture(
+        gesture: Gesture,
+        side: CardSide = CardSide.BOTH,
+    ): ReviewerBinding {
+        val binding = Binding.gesture(gesture)
         return ReviewerBinding(binding = binding, side = side)
     }
 

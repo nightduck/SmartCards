@@ -4,18 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:parentTag="android.widget.FrameLayout">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/show_answer_button"
-        style="@style/AnswerButton"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/show_answer"
-        android:textSize="@dimen/reviewer_answer_button_textSize"
-        app:cornerRadius="12dp"
-        android:textColor="@color/white"
-        tools:layout_height="48dp"
-        android:backgroundTint="?showAnswerButtonBackground" />
-
     <LinearLayout
         android:id="@+id/answer_buttons_layout"
         android:layout_height="match_parent"

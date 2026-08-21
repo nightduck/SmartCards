@@ -114,7 +114,8 @@ class ReviewerFragmentTest : InstrumentedTest() {
     }
 
     private fun clickShowAnswer() {
-        onView(withId(R.id.show_answer_button)).perform(click())
+        // The "show answer" button was removed in favor of tapping the card itself (#19).
+        onView(withId(R.id.web_view_layout)).perform(click())
     }
 
     private fun ensureAnswerButtonsAreDisplayed() {

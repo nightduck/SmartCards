@@ -22,7 +22,8 @@ import com.ichi2.anki.R
 
 /**
  * Wraps [content] in a Material3 [MaterialTheme] populated from the currently
- * applied AnkiDroid XML theme (light, plain, dark or black).
+ * applied AnkiDroid XML theme (light, plain, dark or black), plus the SmartCards
+ * corner-radius scale ([SmartCardsShapes]) and type scale ([SmartCardsTypography]).
  *
  * Color attributes are read from the host Activity's theme via the
  * [R.styleable.ComposeTheme] styleable, so a theme change in app settings
@@ -30,15 +31,27 @@ import com.ichi2.anki.R
  *
  * For any color slot not defined by the active theme, the Material3 default is used.
  *
+ * Also provides [LocalDimensions] (spacing) and [LocalElevations] (elevation) -- read
+ * via `MaterialTheme.dimensions` / `MaterialTheme.elevations`, the same way as the
+ * built-in `colorScheme`/`typography`/`shapes` slots.
+ *
  * Wrap all top-level Compose content in this composable so screens pick up the
- * same colors as the rest of the app.
+ * same colors and tokens as the rest of the app.
  */
 @Composable
 fun AnkiDroidTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val colorScheme = remember(context) { context.toMaterial3ColorScheme() }
-    CompositionLocalProvider(LocalDimensions provides Dimensions()) {
-        MaterialTheme(colorScheme = colorScheme, content = content)
+    CompositionLocalProvider(
+        LocalDimensions provides Dimensions(),
+        LocalElevations provides Elevations(),
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            shapes = SmartCardsShapes,
+            typography = SmartCardsTypography,
+            content = content,
+        )
     }
 }
 

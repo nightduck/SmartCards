@@ -84,4 +84,71 @@ class ThemeTest {
         // inverseSurface is not overridden by Theme_Dark, so it should come from the base
         assertEquals(darkDefaults.inverseSurface.toArgb(), scheme.inverseSurface.toArgb())
     }
+
+    // --- SmartCards visual language (issue #17) ---------------------------------------
+
+    @Test
+    fun `light theme bridges the SmartCards secondary and tertiary accents`() {
+        val scheme = themed(R.style.Theme_Light).toMaterial3ColorScheme()
+        assertEquals(
+            ContextCompat.getColor(appContext, R.color.smartcards_secondary_light),
+            scheme.secondary.toArgb(),
+        )
+        assertEquals(
+            ContextCompat.getColor(appContext, R.color.smartcards_tertiary_light),
+            scheme.tertiary.toArgb(),
+        )
+        assertEquals(
+            ContextCompat.getColor(appContext, R.color.smartcards_tertiary_container_light),
+            scheme.tertiaryContainer.toArgb(),
+        )
+    }
+
+    @Test
+    fun `dark theme bridges the SmartCards secondary and tertiary accents`() {
+        val scheme = themed(R.style.Theme_Dark).toMaterial3ColorScheme()
+        assertEquals(
+            ContextCompat.getColor(appContext, R.color.smartcards_secondary_dark),
+            scheme.secondary.toArgb(),
+        )
+        assertEquals(
+            ContextCompat.getColor(appContext, R.color.smartcards_tertiary_dark),
+            scheme.tertiary.toArgb(),
+        )
+        assertEquals(
+            ContextCompat.getColor(appContext, R.color.smartcards_tertiary_container_dark),
+            scheme.tertiaryContainer.toArgb(),
+        )
+    }
+
+    @Test
+    fun `light and dark themes have distinct secondary and tertiary accents`() {
+        val light = themed(R.style.Theme_Light).toMaterial3ColorScheme()
+        val dark = themed(R.style.Theme_Dark).toMaterial3ColorScheme()
+        assertNotEquals(light.secondary.toArgb(), dark.secondary.toArgb())
+        assertNotEquals(light.tertiary.toArgb(), dark.tertiary.toArgb())
+    }
+
+    @Test
+    fun `black theme inherits the SmartCards accents from dark theme`() {
+        val dark = themed(R.style.Theme_Dark).toMaterial3ColorScheme()
+        val black = themed(R.style.Theme_Dark_Black).toMaterial3ColorScheme()
+        assertEquals(dark.secondary.toArgb(), black.secondary.toArgb())
+        assertEquals(dark.tertiary.toArgb(), black.tertiary.toArgb())
+    }
+
+    @Test
+    fun `surfaceContainerLowest matches the theme background`() {
+        val light = themed(R.style.Theme_Light).toMaterial3ColorScheme()
+        assertEquals(light.background.toArgb(), light.surfaceContainerLowest.toArgb())
+
+        val dark = themed(R.style.Theme_Dark).toMaterial3ColorScheme()
+        assertEquals(dark.background.toArgb(), dark.surfaceContainerLowest.toArgb())
+
+        // Black theme overrides android:colorBackground to pure black; surfaceContainerLowest
+        // (inherited, unset) should follow that override rather than dark theme's grey.
+        val black = themed(R.style.Theme_Dark_Black).toMaterial3ColorScheme()
+        assertEquals(black.background.toArgb(), black.surfaceContainerLowest.toArgb())
+        assertNotEquals(dark.surfaceContainerLowest.toArgb(), black.surfaceContainerLowest.toArgb())
+    }
 }

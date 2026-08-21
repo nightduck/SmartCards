@@ -27,10 +27,20 @@
         <item name="colorSecondaryContainer">#3C5A6E</item>
         <item name="colorOnSecondaryContainer">@color/white</item>
 
+        <!-- SmartCards visual language (issue #17): secondary/tertiary accents and the
+             remaining surface-container step. See colors.xml for the full rationale. -->
+        <item name="colorSecondary">@color/smartcards_secondary_dark</item>
+        <item name="colorOnSecondary">@color/smartcards_on_secondary_dark</item>
+        <item name="colorTertiary">@color/smartcards_tertiary_dark</item>
+        <item name="colorOnTertiary">@color/smartcards_on_tertiary_dark</item>
+        <item name="colorTertiaryContainer">@color/smartcards_tertiary_container_dark</item>
+        <item name="colorOnTertiaryContainer">@color/smartcards_on_tertiary_container_dark</item>
+
         <item name="colorSurfaceContainerHighest">?attr/colorSurfaceContainer</item>
         <item name="colorSurfaceContainerHigh">#424C54</item>
         <item name="colorSurfaceContainer">#0F42A5F5</item>
         <item name="colorSurfaceContainerLow">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLowest">?android:attr/colorBackground</item>
         <!-- Widget colors -->
         <item name="widgetColorActivated">?attr/colorAccent</item>
         <item name="preferenceCategoryTitleTextColor">?attr/colorAccent</item>

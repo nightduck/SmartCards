@@ -29,14 +29,36 @@ class ControlsSettingsFragmentTest : RobolectricTest() {
         for (screen in ControlPreferenceScreen.entries) {
             val xmlKeys =
                 PreferenceTestUtils.getKeysFromXml(targetContext, screen.xmlRes, excludeCategories = true).toMutableList().apply {
-                    remove("binding_BROWSE")
-                    remove("binding_STATISTICS")
                     remove("binding_whiteboard_UNDO")
                     remove("binding_whiteboard_REDO")
                     remove("binding_whiteboard_CLEAR")
                     remove("binding_whiteboard_TOGGLE_ERASER")
+                    // These commands only exist in the legacy Reviewer, not in ViewerAction
+                    remove("binding_SAVE_VOICE")
+                    remove("binding_TOGGLE_ERASER")
+                    remove("binding_CLEAR_WHITEBOARD")
+                    remove("binding_CHANGE_WHITEBOARD_PEN_COLOR")
                 }
-            val enumKeys = screen.getActions().map { it.preferenceKey }
+            val enumKeys =
+                screen.getActions().map { it.preferenceKey }.toMutableList().apply {
+                    // Menu-only entries: shown as a menu/submenu item, not individually bindable
+                    removeAll(
+                        listOf(
+                            "binding_FLAG_MENU",
+                            "binding_BURY_MENU",
+                            "binding_SUSPEND_MENU",
+                            "binding_DECK_OPTIONS",
+                            "binding_RESET_PROGRESS",
+                            "binding_FLAG_RED",
+                            "binding_FLAG_ORANGE",
+                            "binding_FLAG_GREEN",
+                            "binding_FLAG_BLUE",
+                            "binding_FLAG_PINK",
+                            "binding_FLAG_TURQUOISE",
+                            "binding_FLAG_PURPLE",
+                        ),
+                    )
+                }
 
             assertThat(xmlKeys, HamcrestUtils.containsInAnyOrder(enumKeys))
         }

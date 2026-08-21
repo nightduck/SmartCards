@@ -209,22 +209,23 @@ class ContentProviderTest : InstrumentedTest() {
                 FlashCardsContract.Note.TAGS,
             )
         val resolver = contentResolver
-        val cursor =
-            resolver.query(
+        resolver
+            .query(
                 FlashCardsContract.Note.CONTENT_URI_V2,
                 noteProjection,
                 "id=" + firstNote!!.nid,
                 null,
                 null,
-            )
-        assertNotNull(cursor)
-        val window = CursorWindow("test")
+            ).use { cursor ->
+                assertNotNull(cursor)
+                val window = CursorWindow("test")
 
-        // Note: We duplicated the code as it did not appear to be accessible via reflection
-        val initialPosition = cursor.position
-        cursorFillWindow(cursor, 0, window)
-        assertThat("position should not change", cursor.position, equalTo(initialPosition))
-        assertThat("Count should be copied", window.numRows, equalTo(cursor.count))
+                // Note: We duplicated the code as it did not appear to be accessible via reflection
+                val initialPosition = cursor!!.position
+                cursorFillWindow(cursor, 0, window)
+                assertThat("position should not change", cursor.position, equalTo(initialPosition))
+                assertThat("Count should be copied", window.numRows, equalTo(cursor.count))
+            }
     }
 
     /**

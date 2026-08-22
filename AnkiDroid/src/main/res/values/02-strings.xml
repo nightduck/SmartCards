@@ -451,5 +451,13 @@ opening the system text to speech settings fails">Failed to open text to speech 
     <string name="set_due_date_date_range">Date range</string>
 
     <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
-</resources>
 
+    <!-- SmartCards: the language a deck teaches. Stored on the deck itself; unrelated to the
+         text-to-speech language, which is a device-local per-card-template setting. -->
+    <string name="deck_language" comment="Title of the dialog which sets the language a deck teaches, and its entry in the deck context menu">Deck language</string>
+    <string name="deck_language_none" comment="Option in the deck language picker, for a deck which teaches no particular language">No language</string>
+    <string name="deck_language_search_hint" comment="Label of the search field in the deck language picker">Search languages</string>
+    <string name="deck_language_no_matches" comment="Shown in the deck language picker when a search matches no language">No matching languages</string>
+    <string name="deck_language_set" comment="Confirmation shown after choosing a deck's language. %s is a language name, such as 'French'">Deck language: %s</string>
+    <string name="deck_language_cleared" comment="Confirmation shown after removing a deck's language">Deck language removed</string>
+</resources>

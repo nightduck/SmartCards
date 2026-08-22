@@ -151,6 +151,7 @@ import com.ichi2.anki.dialogs.SyncErrorDialog.SyncErrorDialogListener
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction.Companion.REQUEST_KEY
+import com.ichi2.anki.dialogs.decklanguage.DeckLanguageDialog
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResultListener
 import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.filtered.FilteredDeckOptionsFragment
@@ -1011,7 +1012,26 @@ open class DeckPicker :
                 dismissAllDialogFragments()
                 openScheduleReminders(deckId)
             }
+            DeckPickerContextMenuOption.DECK_LANGUAGE -> {
+                Timber.i("ContextMenu: Set deck language selected")
+                dismissAllDialogFragments()
+                showDeckLanguageDialog(deckId)
+            }
         }
+    }
+
+    /**
+     * Asks which language the deck teaches.
+     *
+     * Shown with its own tag rather than via `showDialogFragment`, which puts a dialog on the
+     * shared `"dialog"` back-stack entry: the deck-created path below runs a refresh that
+     * repopulates the study options panel, and that pops the whole back stack out from under it.
+     *
+     * @see DeckLanguageDialog
+     */
+    private fun showDeckLanguageDialog(deckId: DeckId) {
+        if (supportFragmentManager.findFragmentByTag(DeckLanguageDialog.TAG) != null) return
+        DeckLanguageDialog.newInstance(deckId).show(supportFragmentManager, DeckLanguageDialog.TAG)
     }
 
     /**
@@ -2221,7 +2241,16 @@ open class DeckPicker :
                 deckDialogType = CreateDeckDialog.DeckDialogType.DECK,
                 parentId = null,
             )
-        createDeckDialog.onNewDeckCreated = ::onDeckCreated
+        createDeckDialog.onNewDeckCreated = { deckId ->
+            launchCatchingTask {
+                // wait for the deck-created work to settle first: on tablets it repopulates the
+                // study options panel, which pops the back stack the dialog would sit on
+                onDeckCreated(deckId).join()
+                // the second half of deck creation: a deck is a language's deck, so ask straight
+                // away rather than making the user find the context menu entry
+                showDeckLanguageDialog(deckId)
+            }
+        }
         createDeckDialog.showDialog()
     }
 

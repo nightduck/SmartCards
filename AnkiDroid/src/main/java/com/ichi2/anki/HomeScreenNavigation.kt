@@ -20,20 +20,16 @@ import com.ichi2.anki.browser.CardBrowserFragment
 import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.pages.Statistics
-import com.ichi2.anki.settings.Prefs
 
 /**
  * Manages the bottom navigation bar for the home screen.
  *
- * On tablets (fragmented), this is a no-op because tablets use the navigation
- * drawer with a split pane.
+ * This is the home screen's only navigation: the deck list, the card browser, the statistics
+ * and the 'More' destination (settings, help and support) are reached from here.
  */
 @NeedsTest("tab switches show/hide correct fragments")
-@NeedsTest("back press returns to Home tab before exiting")
 context(deckPicker: DeckPicker)
 fun setupBottomNavigation() {
-    if (!Prefs.devBottomNavEnabled || deckPicker.fragmented) return
-
     val bottomNav = deckPicker.findViewById<BottomNavigationView>(R.id.bottom_navigation)
     val fragmentContainer = deckPicker.findViewById<View>(R.id.bottom_nav_fragment_container)
     val contentWrapper = deckPicker.findViewById<View>(R.id.deck_picker_content_wrapper)

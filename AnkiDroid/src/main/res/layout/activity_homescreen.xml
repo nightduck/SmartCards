@@ -23,14 +23,13 @@
             android:id="@+id/deck_picker_pane"
             layout="@layout/include_deck_picker" />
     </LinearLayout>
-    <!-- Hidden by default. Made visible by DeckPicker when devBottomNavEnabled is true. -->
+    <!-- Made visible by DeckPicker once a bottom navigation destination is selected. -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/bottom_nav_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <!-- Hidden by default. Made visible by DeckPicker when devBottomNavEnabled is true. -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"

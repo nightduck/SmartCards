@@ -62,6 +62,7 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.getColUnsafe
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.Flag
+import com.ichi2.anki.NavigationDrawerActivity
 import com.ichi2.anki.R
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.shortcut
@@ -125,7 +126,6 @@ import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.previewer.PreviewerFragment
 import com.ichi2.anki.requireAnkiActivity
-import com.ichi2.anki.requireNavigationDrawerActivity
 import com.ichi2.anki.scheduling.ForgetCardsDialog
 import com.ichi2.anki.scheduling.SetDueDateDialog
 import com.ichi2.anki.settings.Prefs
@@ -370,7 +370,13 @@ class CardBrowserFragment :
         searchBar =
             view.findViewById<SearchBar>(R.id.search_bar)?.apply {
                 setNavigationOnClickListener {
-                    requireNavigationDrawerActivity().onNavigationPressed()
+                    when (val host = requireActivity()) {
+                        // hosted in an activity with a navigation drawer: open it
+                        is NavigationDrawerActivity -> host.onNavigationPressed()
+                        // hosted in the home screen's bottom navigation: its back callback
+                        // returns to the deck list
+                        else -> host.onBackPressedDispatcher.onBackPressed()
+                    }
                 }
             }
 

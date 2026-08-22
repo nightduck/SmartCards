@@ -41,7 +41,11 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         val marketIntent = AnkiDroidApp.getMarketIntent(requireContext())
 
         binding.moreSettings.setOnClickListener {
-            navigate(PreferencesDestination.Root)
+            // the host recreates itself when settings close, so preference changes are applied
+            when (val host = requireActivity()) {
+                is DeckPicker -> host.openSettings()
+                else -> navigate(PreferencesDestination.Root)
+            }
         }
 
         // Help section: each opens HelpDialog with the relevant sub-items

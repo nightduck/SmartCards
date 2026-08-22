@@ -25,7 +25,6 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.matcher.ViewMatchers.hasFocus
 import androidx.test.espresso.matcher.ViewMatchers.hasMinimumChildCount
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
@@ -64,8 +63,7 @@ class PreferencesNavigationTest {
         assumeTrue(context.resources.isWindowCompact())
         ActivityScenario.launch(IntentHandler::class.java)
         closeGetStartedScreenIfExists()
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
-        onView(withId(R.id.nav_settings)).perform(click())
+        openSettingsFromHomeScreen()
         onView(withId(com.bytehamster.lib.preferencesearch.R.id.search)).perform(click())
         onView(allOf(withId(com.bytehamster.lib.preferencesearch.R.id.search), hasFocus())).perform(typeText("Controls"))
         // Checking the list of Settings Categories are displayed on the basis of our search "Controls"
@@ -91,8 +89,7 @@ class PreferencesNavigationTest {
         assumeTrue(isTablet(context))
         ActivityScenario.launch(IntentHandler::class.java)
         closeGetStartedScreenIfExists()
-        onView(withId(R.id.drawer_layout)).perform(DrawerActions.open())
-        onView(withId(R.id.nav_settings)).perform(click())
+        openSettingsFromHomeScreen()
         onView(withId(com.bytehamster.lib.preferencesearch.R.id.search)).perform(click())
         onView(allOf(withId(com.bytehamster.lib.preferencesearch.R.id.search), hasFocus())).perform(typeText("Card"))
         onView(withText(R.string.card_zoom)).perform(click())
@@ -100,5 +97,11 @@ class PreferencesNavigationTest {
         onView(withText(R.string.notification_pref)).perform(click())
         pressBack()
         onView(withClassName(endsWith("PreferencesActivity"))).check(doesNotExist())
+    }
+
+    /** Opens the settings screen the way a user does: the home screen's 'More' tab */
+    private fun openSettingsFromHomeScreen() {
+        onView(withId(R.id.nav_more)).perform(click())
+        onView(withId(R.id.more_settings)).perform(click())
     }
 }

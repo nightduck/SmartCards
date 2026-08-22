@@ -102,6 +102,7 @@ import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.common.destinations.PreferencesDestination
 import com.ichi2.anki.common.destinations.ReviewDeckDestination
+import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.common.destinations.StudyOptionsDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.destinations.toIntent
@@ -256,7 +257,7 @@ import com.ichi2.anki.common.android.R as CommonR
 @NeedsTest("If the user selects 'Sync Profile' in the app intro, a sync starts immediately")
 @NeedsTest("Regression test of #19555 or remove 'android:configChanges' for the screen")
 open class DeckPicker :
-    NavigationDrawerActivity(),
+    AnkiActivity(),
     SyncErrorDialogListener,
     OnRequestPermissionsResultCallback,
     ChangeManager.Subscriber,
@@ -279,11 +280,11 @@ open class DeckPicker :
     val floatingActionButtonBinding: IncludeFloatingAddButtonBinding
         get() = deckPickerBinding.floatingActionButton
 
-    override var fragmented: Boolean
+    /** Whether the screen is large enough to show [StudyOptionsFragment] beside the deck list */
+    val fragmented: Boolean
         get() =
             resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK ==
                 Configuration.SCREENLAYOUT_SIZE_XLARGE
-        set(_) = throw UnsupportedOperationException()
 
     // Short animation duration from system
     private var shortAnimDuration = 0
@@ -333,6 +334,27 @@ open class DeckPicker :
      * work in onResume that might use the database and go straight to syncing.
      */
     private var syncOnResume = false
+
+    /**
+     * Whether [onCreate] finished setting up the screen's views.
+     *
+     * `false` if [onCreate] returned early (the app introduction is displayed, or the activity
+     * failed to start), in which case [onResume] must not touch the deck list.
+     */
+    private var contentViewInitialized = false
+
+    /**
+     * Opens the settings screen, recreating this activity on return so that preference changes
+     * (theme, language, deck list options...) are applied.
+     */
+    private val preferencesLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            Timber.i("Returned from settings")
+            // The user may have changed the locale from within the app, so the notification
+            // channel names need to be reloaded to match it
+            setupNotificationChannels(applicationContext)
+            ActivityCompat.recreate(this)
+        }
 
     private var toolbarSearchItem: MenuItem? = null
     private var toolbarSearchView: AccessibleSearchView? = null
@@ -516,6 +538,9 @@ open class DeckPicker :
 
         setViewBinding(binding)
         enableToolbar()
+        // the shared toolbar layout carries an up arrow, which the drawer used to replace with its
+        // hamburger. The home screen is the root of the app, so it has nothing to navigate up to.
+        findViewById<Toolbar>(R.id.toolbar).navigationIcon = null
         // TODO This method is run on every activity recreation, which can happen often.
         //  It seems that the original idea was for this to only run once, on app start.
         //  This method triggers backups, sync, and may re-show dialogs
@@ -524,13 +549,10 @@ open class DeckPicker :
 
         registerReceiver()
 
-        // create inherited navigation drawer layout here so that it can be used by parent class
-        initNavigationDrawer()
-        if (Prefs.devBottomNavEnabled && !fragmented) {
-            disableDrawerSwipe()
-            disableDrawerIndicator()
-        }
+        registerShortcuts()
+        setupBackPressedCallbacks()
         setupBottomNavigation()
+        contentViewInitialized = true
         setupEdgeToEdge()
         title = resources.getString(R.string.app_name)
 
@@ -628,14 +650,32 @@ open class DeckPicker :
         setupFlows()
     }
 
-    override fun setupBackPressedCallbacks() {
+    /**
+     * Registers the screen's back press handling, in increasing order of priority: the last
+     * callback added is the first one offered the back press.
+     *
+     * [setupBottomNavigation] adds a further callback afterwards, so returning to the
+     * home tab takes priority over all of these.
+     */
+    private fun setupBackPressedCallbacks() {
         onBackPressedDispatcher.addCallback(this, exitAndSyncBackCallback)
         onBackPressedDispatcher.addCallback(this, exitViaDoubleTapBackCallback())
         onBackPressedDispatcher.addCallback(this, closeFloatingActionBarBackPressCallback)
-        super.setupBackPressedCallbacks()
     }
 
-    override fun fitsSystemWindows(): Boolean = false
+    /**
+     * Registers the app's dynamic launcher shortcuts, and lets the widget package know that
+     * collection access may have changed.
+     *
+     * Previously done by `NavigationDrawerActivity.initNavigationDrawer`.
+     */
+    private fun registerShortcuts() {
+        NavigationDrawerActivity.enablePostShortcut(this)
+        sendBroadcast(
+            Intent("com.ichi2.widget.UPDATE_WIDGET")
+                .setClassName("com.ichi2.widget", "WidgetPermissionReceiver"),
+        )
+    }
 
     /** Applied edge-to-edge insets for the screen */
     private fun setupEdgeToEdge() {
@@ -673,8 +713,7 @@ open class DeckPicker :
 
             // hack for Roborazzi screenshot tests
             val fabBottomOffset = if (isRobolectric) 12.dp.toPx(this) else -12.dp.toPx(this)
-            val bottomNavView = findViewById<View?>(R.id.bottom_navigation)
-            val bottomNavOffset = if (bottomNavView?.isVisible == true) BOTTOM_NAV_HEIGHT_DP.dp.toPx(this) else 0
+            val bottomNavOffset = if (binding.bottomNavigation.isVisible) BOTTOM_NAV_HEIGHT_DP.dp.toPx(this) else 0
             floatingActionButtonBinding.root.updatePadding(bottom = bars.bottom + fabBottomOffset + bottomNavOffset)
 
             setRecyclerViewBottomPaddingAbove(floatingActionButtonBinding.fabMain)
@@ -687,7 +726,9 @@ open class DeckPicker :
             val studyoptionsView = binding.studyoptionsFragment ?: return
             ViewCompat.setOnApplyWindowInsetsListener(studyoptionsView) { studyOptions, insets ->
                 val bars = insets.getInsets(systemBars() or displayCutout())
-                studyOptions.updatePadding(right = bars.right, bottom = bars.bottom)
+                val bottomNavOffset =
+                    if (binding.bottomNavigation.isVisible) BOTTOM_NAV_HEIGHT_DP.dp.toPx(this) else 0
+                studyOptions.updatePadding(right = bars.right, bottom = bars.bottom + bottomNavOffset)
                 insets
             }
         }
@@ -1323,9 +1364,6 @@ open class DeckPicker :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (drawerToggle.onOptionsItemSelected(item)) {
-            return true
-        }
         when (item.itemId) {
             R.id.action_undo -> {
                 Timber.i("DeckPicker:: Undo button pressed")
@@ -1455,7 +1493,7 @@ open class DeckPicker :
         // As `loadDeckCounts` is cancelled in `migrate()`
         val message = dialogHandler.popMessage()
         super.onResume()
-        if (navDrawerIsReady() && hasCollectionStoragePermissions()) {
+        if (contentViewInitialized && hasCollectionStoragePermissions()) {
             refreshState()
         }
         message?.let { dialogHandler.sendStoredMessage(it) }
@@ -1469,7 +1507,6 @@ open class DeckPicker :
             Permissions.requestNotificationPermissionsForSyncing(this)
             sync()
         } else {
-            selectNavigationItem(R.id.nav_decks)
             updateDeckList()
             title = resources.getString(R.string.app_name)
         }
@@ -1569,12 +1606,29 @@ open class DeckPicker :
         return false
     }
 
+    /** Opens the card browser */
+    fun openCardBrowser() {
+        Timber.i("launching card browser")
+        startActivity(Intent(this, CardBrowser::class.java))
+    }
+
+    /** Opens the statistics screen */
+    fun openStatistics() {
+        Timber.i("launching statistics")
+        navigate(StatisticsDestination)
+    }
+
+    /** Opens the settings screen */
+    fun openSettings() {
+        Timber.i("launching settings")
+        preferencesLauncher.navigate(PreferencesDestination.Root)
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (!Prefs.devBottomNavEnabled || fragmented || event.action != KeyEvent.ACTION_DOWN || !event.isAltPressed) {
+        if (!contentViewInitialized || event.action != KeyEvent.ACTION_DOWN || !event.isAltPressed) {
             return super.dispatchKeyEvent(event)
         }
 
-        val bottomNavigation = binding.bottomNavigation ?: return super.dispatchKeyEvent(event)
         val destination =
             when (event.keyCode) {
                 KeyEvent.KEYCODE_1 -> NavigationItem.HOME
@@ -1583,7 +1637,7 @@ open class DeckPicker :
                 KeyEvent.KEYCODE_4 -> NavigationItem.MORE
                 else -> return super.dispatchKeyEvent(event)
             }
-        bottomNavigation.selectedItemId = destination.id
+        binding.bottomNavigation.selectedItemId = destination.id
         return true
     }
 
@@ -2326,7 +2380,7 @@ open class DeckPicker :
             fun bottomNavShortcut(
                 keys: String,
                 destination: NavigationItem,
-            ) = if (Prefs.devBottomNavEnabled && !fragmented) shortcut(keys, destination.shortcutLabel) else null
+            ) = shortcut(keys, destination.shortcutLabel)
 
             return ShortcutGroup(
                 listOfNotNull(

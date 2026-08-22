@@ -16,3 +16,124 @@ img {
   width: 100%;
   font-family: "Noto Sans Mono";
 }
+/* ==========================================================================
+   SmartCards: the collapsible "dictionary" explainer (issue #23)
+
+   The SmartCards note type emits `<details class="explainer"><summary>More</summary>...`
+   on the answer side. It is styled here rather than in the note type's own CSS so that
+   collections created before this change - including tools/test-decks - pick the panel up,
+   and so it follows the app's theme instead of a value frozen into every user's collection.
+
+   Selectors are `#qa`-prefixed for the same reason: the note type's CSS is injected into the
+   page as an inline <style> *after* this file, so plain `details.explainer summary` here would
+   lose to the `details.explainer summary { color: #0066cc }` already baked into existing
+   collections. `#qa` is the container `stdHtml` renders cards into.
+
+   Surfaces are neutral grey at low alpha rather than a theme colour: the note type's own
+   `.card` rule paints the card white in day mode and `backend/css/reviewer.css` repaints it
+   with `--canvas` in night mode, so a translucent grey is the only fill that stays legible
+   on whatever a deck decides its background is. The accent, radius and motion duration do
+   come from the app - `stdHtml` injects them from the Phase 0 tokens (issue #17).
+   ========================================================================== */
+
+:root {
+    --sc-motion-duration: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --sc-motion-duration: 0ms;
+    }
+}
+
+#qa details.explainer {
+    margin: 1em 0 0;
+    padding: 0 0.9em;
+    box-sizing: border-box;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-radius: var(--sc-explainer-radius, 16px);
+    background-color: rgba(128, 128, 128, 0.08);
+    font-size: 0.8em;
+    line-height: 1.55;
+    /* a dictionary entry is read, not glanced at: keep it ragged-right even on a centred card */
+    text-align: start;
+    transition: padding-bottom var(--sc-motion-duration) ease-out;
+}
+
+#qa details.explainer[open] {
+    padding-bottom: 0.9em;
+}
+
+#qa details.explainer > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6em;
+    /* cancel the parent's inline padding so the row - and its divider - spans the full panel */
+    margin: 0 -0.9em;
+    padding: 0.7em 0.9em;
+    box-sizing: border-box;
+    /* a comfortable touch target, independent of the deck's font size */
+    min-height: 44px;
+    color: var(--sc-explainer-accent, currentColor);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    list-style: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#qa details.explainer > summary::-webkit-details-marker {
+    display: none;
+}
+
+#qa details.explainer[open] > summary {
+    margin-bottom: 0.7em;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+/* chevron, drawn from two borders so it needs no font or asset */
+#qa details.explainer > summary::after {
+    content: "";
+    flex: none;
+    width: 0.45em;
+    height: 0.45em;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform var(--sc-motion-duration) ease-out;
+}
+
+#qa details.explainer[open] > summary::after {
+    transform: rotate(-135deg);
+}
+
+/*
+ * The height animation needs `::details-content` (Chrome 131) and `interpolate-size`
+ * (Chrome 129) to interpolate to `auto`. The oldest WebView the app runs on is Chrome 85
+ * (OLDEST_WORKING_WEBVIEW_VERSION), which opens the panel instantly instead - the chevron still
+ * turns. The content is a bare text node in the note type's template, so there is no wrapper
+ * element to animate as a fallback.
+ */
+@supports selector(::details-content) {
+    :root {
+        interpolate-size: allow-keywords;
+    }
+
+    #qa details.explainer::details-content {
+        height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition:
+            height var(--sc-motion-duration) ease-out,
+            opacity var(--sc-motion-duration) ease-out,
+            content-visibility var(--sc-motion-duration) allow-discrete;
+    }
+
+    #qa details.explainer[open]::details-content {
+        height: auto;
+        opacity: 1;
+    }
+}

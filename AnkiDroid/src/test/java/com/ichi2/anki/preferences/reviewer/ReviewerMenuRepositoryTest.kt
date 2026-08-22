@@ -49,7 +49,10 @@ class ReviewerMenuRepositoryTest {
 
     @Test
     fun `getActionsByMenuDisplayType returns correctly categorized items`() {
-        // assuming that UNDO is the only action with ALWAYS as default, put it in another list
+        // No ViewerAction currently defaults to ALWAYS (undo/edit/delete are fixed reviewer
+        // chrome outside the configurable menu, see ViewerAction's defaultDisplayType kdoc), so
+        // an unconfigured repository should report nothing for ALWAYS. UNDO itself has no
+        // defaultDisplayType and is therefore excluded even when explicitly configured here.
         repository.setDisplayTypeActions(
             alwaysShowActions = emptyList(),
             menuOnlyActions = listOf(ViewerAction.UNDO),

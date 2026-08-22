@@ -164,12 +164,14 @@ class ReviewerFragment :
         setupAnswerButtons()
         setupCounts()
         setupMenu()
+        setupToolsChrome()
         setupToolbarPosition()
         setupAnswerTimer()
         setupMargins()
         setupResetProgress()
         setupCheckPronunciation()
         setupActions()
+        setupDeleteConfirmation()
         setupWhiteboard()
         setupTimebox()
 
@@ -401,6 +403,32 @@ class ReviewerFragment :
         }
     }
 
+    /**
+     * Undo, edit and delete are fixed, always-visible controls in `fragment_reviewer.xml`'s
+     * `tools_layout`, rather than living in the user-configurable [ReviewerMenuView] overflow.
+     */
+    private fun setupToolsChrome() {
+        binding.undoButton.setOnClickListener {
+            viewModel.executeAction(ViewerAction.UNDO)
+        }
+        binding.editButton.setOnClickListener {
+            viewModel.executeAction(ViewerAction.EDIT)
+        }
+        binding.deleteButton.setOnClickListener {
+            viewModel.executeAction(ViewerAction.DELETE)
+        }
+
+        viewModel.undoLabelFlow
+            .flowWithLifecycle(lifecycle)
+            .collectIn(lifecycleScope) { label ->
+                binding.undoButton.apply {
+                    contentDescription = label ?: getString(R.string.undo)
+                    isEnabled = label != null
+                    alpha = if (label != null) 1F else 0.5F
+                }
+            }
+    }
+
     private fun setupImmersiveMode() {
         val barsToHide =
             when (Prefs.hideSystemBars) {
@@ -447,7 +475,15 @@ class ReviewerFragment :
     private fun setupToolbarPosition() {
         when (Prefs.toolbarPosition) {
             ToolbarPosition.TOP -> return
-            ToolbarPosition.NONE -> binding.toolsLayout.isVisible = false
+            ToolbarPosition.NONE -> {
+                // Per #14/#22, back-to-home, undo, edit and delete must remain directly
+                // accessible from the review screen at all times, so "None" only hides the
+                // optional/configurable parts of tools_layout: the counts/timer display and the
+                // user-configurable overflow menu (@id/reviewer_menu_view).
+                binding.studyCounts.isVisible = false
+                binding.timer.isVisible = false
+                binding.reviewerMenuView.isVisible = false
+            }
             ToolbarPosition.BOTTOM -> {
                 binding.mainLayout.removeView(binding.toolsLayout)
                 binding.mainLayout.addView(binding.toolsLayout)
@@ -501,6 +537,23 @@ class ReviewerFragment :
         // TODO handle 'Reset progress' in the ViewModel instead of the activity, once
         //  a mechanism of showing a progress bar if the operation takes too long is implemented
         registerOnForgetHandler { listOf(viewModel.getCardId()) }
+    }
+
+    private fun setupDeleteConfirmation() {
+        viewModel.deleteNoteConfirmationFlow
+            .flowWithLifecycle(lifecycle)
+            .collectIn(lifecycleScope) { question ->
+                Timber.i("Displaying 'delete note' dialog")
+                AlertDialog.Builder(requireContext()).show {
+                    setTitle(R.string.delete_card_title)
+                    setIcon(R.drawable.ic_warning)
+                    setMessage(getString(R.string.delete_note_message, question))
+                    setPositiveButton(R.string.dialog_positive_delete) { _, _ ->
+                        viewModel.deleteNoteConfirmed()
+                    }
+                    setNegativeButton(R.string.dialog_cancel, null)
+                }
+            }
     }
 
     private fun setupCheckPronunciation() {

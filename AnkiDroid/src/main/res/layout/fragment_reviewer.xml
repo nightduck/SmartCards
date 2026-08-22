@@ -75,10 +75,47 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/undo_button"
                 app:layout_constraintStart_toEndOf="@id/counts_barrier"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginStart="12dp"/>
+
+            <!-- Undo, edit and delete are always available directly from the review screen
+                 (rather than the user-configurable @id/reviewer_menu_view overflow), per #14. -->
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/undo_button"
+                style="?actionButtonStyle"
+                android:layout_width="?minTouchTargetSize"
+                android:layout_height="?actionBarSize"
+                android:contentDescription="@string/undo"
+                android:src="@drawable/ic_undo_white"
+                app:layout_constraintEnd_toStartOf="@id/edit_button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/edit_button"
+                style="?actionButtonStyle"
+                android:layout_width="?minTouchTargetSize"
+                android:layout_height="?actionBarSize"
+                android:contentDescription="@string/cardeditor_title_edit_card"
+                android:src="@drawable/ic_mode_edit_white"
+                app:layout_constraintEnd_toStartOf="@id/delete_button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/delete_button"
+                style="?actionButtonStyle"
+                android:layout_width="?minTouchTargetSize"
+                android:layout_height="?actionBarSize"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@string/sentence_delete_note"
+                android:src="@drawable/ic_delete_white"
+                app:tint="?attr/colorError"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

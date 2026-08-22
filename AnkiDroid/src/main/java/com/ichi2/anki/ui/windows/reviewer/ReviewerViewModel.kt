@@ -15,6 +15,7 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.Flag
 import com.ichi2.anki.Reviewer
 import com.ichi2.anki.asyncIO
+import com.ichi2.anki.backend.stripHTMLAndSpecialFields
 import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.BrowserDestination
@@ -105,6 +106,9 @@ class ReviewerViewModel(
     val editNoteTagsFlow = MutableSharedFlow<NoteId>()
     val setDueDateFlow = MutableSharedFlow<CardId>()
     val resetProgressFlow = MutableSharedFlow<Unit>()
+
+    /** Emits the stripped question text of the note pending deletion, to be shown in a confirmation dialog. */
+    val deleteNoteConfirmationFlow = MutableSharedFlow<String>()
     val answerFeedbackFlow = MutableSharedFlow<Rating>()
     val voiceRecorderEnabledFlow = MutableStateFlow(repository.isRecordVoiceEnabled)
     val whiteboardEnabledFlow = MutableStateFlow(repository.isWhiteboardEnabled)
@@ -339,6 +343,25 @@ class ReviewerViewModel(
         val destination = BrowserDestination.ScrollToCard(deckId, cardId)
         Timber.i("Launching 'browse options' for deck %d", deckId)
         navigateFlow.emit(destination)
+    }
+
+    /**
+     * Requests confirmation before deleting the current note, emitting [deleteNoteConfirmationFlow]
+     * for the UI to show a confirmation dialog. Call [deleteNoteConfirmed] once the user confirms.
+     */
+    private suspend fun confirmDeleteNote() {
+        val card = currentCard.await()
+        val question = withCol { stripHTMLAndSpecialFields(card.question(this)) }.trim()
+        deleteNoteConfirmationFlow.emit(question)
+    }
+
+    /** Deletes the current note. Consumers should request confirmation first, see [confirmDeleteNote]. */
+    fun deleteNoteConfirmed() {
+        launchCatchingIO {
+            actionsMutex.withLock {
+                deleteNote()
+            }
+        }
     }
 
     private suspend fun deleteNote() {
@@ -701,7 +724,7 @@ class ReviewerViewModel(
                     ViewerAction.DECK_OPTIONS -> emitDeckOptionsDestination()
                     ViewerAction.EDIT -> emitEditNoteDestination()
                     ViewerAction.TAG -> editNoteTags()
-                    ViewerAction.DELETE -> deleteNote()
+                    ViewerAction.DELETE -> confirmDeleteNote()
                     ViewerAction.MARK -> toggleMark()
                     ViewerAction.REDO -> redo()
                     ViewerAction.UNDO -> undo()

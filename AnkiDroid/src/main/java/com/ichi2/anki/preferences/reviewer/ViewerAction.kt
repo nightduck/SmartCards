@@ -12,7 +12,6 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
 import com.ichi2.anki.cardviewer.Gesture
-import com.ichi2.anki.preferences.reviewer.MenuDisplayType.ALWAYS
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.DISABLED
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.MENU_ONLY
 import com.ichi2.anki.reviewer.Binding
@@ -28,9 +27,11 @@ import com.ichi2.anki.ui.internationalization.sentenceCase
 /**
  * @param menuId menu Id of the action
  *
- * @param defaultDisplayType the default display type of the action in the toolbar.
+ * @param defaultDisplayType the default display type of the action in the [ReviewerMenuView]
+ * (the user-configurable overflow, backed by [ReviewerMenuRepository]).
  * Use `null` if the action is restricted to gestures/controls and shouldn't be in the menu,
- * or if the item has a [parentMenu].
+ * if the item has a [parentMenu], or if it's a fixed, non-configurable control rendered directly
+ * by [com.ichi2.anki.ui.windows.reviewer.ReviewerFragment] (e.g. [UNDO], [EDIT], [DELETE]).
  */
 enum class ViewerAction(
     @IdRes val menuId: Int = 0,
@@ -38,17 +39,20 @@ enum class ViewerAction(
     val defaultDisplayType: MenuDisplayType? = null,
     val parentMenu: ViewerAction? = null,
 ) : MappableAction<ReviewerBinding> {
-    // Always
-    UNDO(R.id.action_undo, R.drawable.ic_undo_white, ALWAYS),
+    // Fixed, always-visible reviewer chrome (outside the configurable menu, see
+    // ReviewerFragment/fragment_reviewer.xml's undo/edit/delete buttons). These intentionally
+    // have no [defaultDisplayType], so they're excluded from ReviewerMenuRepository /
+    // ReviewerMenuSettingsFragment entirely - there's nothing for the user to configure.
+    UNDO(R.id.action_undo, R.drawable.ic_undo_white),
+    EDIT(R.id.action_edit_note, R.drawable.ic_mode_edit_white),
+    DELETE(R.id.action_delete, R.drawable.ic_delete_white),
 
     // Menu only
     REDO(R.id.action_redo, R.drawable.ic_redo, MENU_ONLY),
     FLAG_MENU(R.id.action_flag, R.drawable.ic_flag_transparent, MENU_ONLY),
     MARK(R.id.action_mark, R.drawable.ic_star, MENU_ONLY),
-    EDIT(R.id.action_edit_note, R.drawable.ic_mode_edit_white, MENU_ONLY),
     BURY_MENU(R.id.action_bury, R.drawable.ic_flip_to_back_white, MENU_ONLY),
     SUSPEND_MENU(R.id.action_suspend, R.drawable.ic_suspend, MENU_ONLY),
-    DELETE(R.id.action_delete, R.drawable.ic_delete_white, MENU_ONLY),
     TOGGLE_WHITEBOARD(R.id.action_toggle_whiteboard, R.drawable.ic_enable_whiteboard, MENU_ONLY),
 
     // Disabled

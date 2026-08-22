@@ -13,7 +13,6 @@ import com.ichi2.anki.Flag
 import com.ichi2.anki.R
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.preferences.reviewer.MenuDisplayType.DISABLED
-import com.ichi2.anki.preferences.reviewer.MenuDisplayType.MENU_ONLY
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.Binding.AppDefinedModifierKeys
 import com.ichi2.anki.reviewer.Binding.ModifierKeys
@@ -47,13 +46,13 @@ enum class ViewerAction(
     EDIT(R.id.action_edit_note, R.drawable.ic_mode_edit_white),
     DELETE(R.id.action_delete, R.drawable.ic_delete_white),
 
-    // Menu only
-    REDO(R.id.action_redo, R.drawable.ic_redo, MENU_ONLY),
-    FLAG_MENU(R.id.action_flag, R.drawable.ic_flag_transparent, MENU_ONLY),
-    MARK(R.id.action_mark, R.drawable.ic_star, MENU_ONLY),
-    BURY_MENU(R.id.action_bury, R.drawable.ic_flip_to_back_white, MENU_ONLY),
-    SUSPEND_MENU(R.id.action_suspend, R.drawable.ic_suspend, MENU_ONLY),
-    TOGGLE_WHITEBOARD(R.id.action_toggle_whiteboard, R.drawable.ic_enable_whiteboard, MENU_ONLY),
+    // Menu only (disabled)
+    REDO(R.id.action_redo, R.drawable.ic_redo, DISABLED),
+    FLAG_MENU(R.id.action_flag, R.drawable.ic_flag_transparent, DISABLED),
+    MARK(R.id.action_mark, R.drawable.ic_star, DISABLED),
+    BURY_MENU(R.id.action_bury, R.drawable.ic_flip_to_back_white, DISABLED),
+    SUSPEND_MENU(R.id.action_suspend, R.drawable.ic_suspend, DISABLED),
+    TOGGLE_WHITEBOARD(R.id.action_toggle_whiteboard, R.drawable.ic_enable_whiteboard, DISABLED),
 
     // Disabled
     BROWSE(R.id.action_browse, R.drawable.ic_flashcard_black, DISABLED),

@@ -42,6 +42,7 @@ import com.ichi2.anki.Flag
 import com.ichi2.anki.R
 import com.ichi2.anki.android.AnkiShakeDetector
 import com.ichi2.anki.cardviewer.Gesture
+import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.DeckOptionsDestination
 import com.ichi2.anki.common.destinations.navigate
@@ -69,6 +70,7 @@ import com.ichi2.anki.settings.enums.ToolbarPosition
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.ui.windows.reviewer.ReviewerCardView.SwipeDirection
 import com.ichi2.anki.ui.windows.reviewer.audiorecord.CheckPronunciationFragment
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardFragment
 import com.ichi2.anki.utils.CollectionPreferences
@@ -159,6 +161,7 @@ class ReviewerFragment :
         }
 
         setupBindings()
+        setupCardAnimations(savedInstanceState)
         setupImmersiveMode()
         setupTypeAnswer()
         setupAnswerButtons()
@@ -353,13 +356,44 @@ class ReviewerFragment :
         }
     }
 
+    /**
+     * Drives the card's flip and swipe motions (#14): revealing the answer flips the card over,
+     * and rating it throws the card off screen, whether the rating came from a button or a swipe.
+     */
+    private fun setupCardAnimations(savedInstanceState: Bundle?) {
+        binding.webViewContainer.apply {
+            contentView = binding.webViewLayout
+            canContentScrollHorizontally = webViewLayout::canPageScrollHorizontally
+            onSwipe = { gesture -> bindingMap.onGesture(gesture) }
+        }
+
+        // After a recreation the restored side is re-rendered without the user asking for it,
+        // so it must not be animated.
+        var isRestoringCard = savedInstanceState != null
+        viewModel.cardSideShownFlow.collectIn(lifecycleScope) { side ->
+            if (isRestoringCard) {
+                isRestoringCard = false
+                return@collectIn
+            }
+            when (side) {
+                SingleCardSide.BACK -> binding.webViewContainer.onAnswerShown()
+                SingleCardSide.FRONT -> binding.webViewContainer.onNextCardShown()
+            }
+        }
+    }
+
     private fun setupAnswerButtons() {
         if (!Prefs.showAnswerButtons) {
             binding.answerArea.isVisible = false
             return
         }
 
-        binding.answerArea.setButtonListeners(onRatingClicked = { viewModel.answerCard(it) })
+        binding.answerArea.setButtonListeners(
+            onRatingClicked = { rating ->
+                binding.webViewContainer.swipeOut(SwipeDirection.forRating(rating))
+                viewModel.answerCard(rating)
+            },
+        )
 
         binding.answerArea.setRelativeHeight(Prefs.newStudyScreenAnswerButtonSize)
 
@@ -586,6 +620,8 @@ class ReviewerFragment :
         )
 
         viewModel.whiteboardEnabledFlow.flowWithLifecycle(lifecycle).collectIn(lifecycleScope) { isEnabled ->
+            // The whiteboard draws on top of the card, so it owns horizontal drags while shown
+            binding.webViewContainer.isDragEnabled = !isEnabled
             val existingFragment = whiteboardFragment
             childFragmentManager.commit {
                 if (isEnabled) {

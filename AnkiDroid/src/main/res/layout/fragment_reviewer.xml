@@ -9,6 +9,7 @@
     android:background="?attr/alternativeBackgroundColor"
     android:fitsSystemWindows="true"
     android:focusableInTouchMode="true"
+    android:clipChildren="false"
     tools:context=".ui.windows.reviewer.ReviewerFragment">
 
     <LinearLayout
@@ -119,7 +120,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.card.MaterialCardView
+        <com.ichi2.anki.ui.windows.reviewer.ReviewerCardView
             android:id="@+id/web_view_container"
             style="@style/CardView.ReviewerStyle"
             android:layout_width="match_parent"
@@ -173,7 +174,7 @@
                     />
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+        </com.ichi2.anki.ui.windows.reviewer.ReviewerCardView>
 
         <!-- The elevation should be higher than the one used by the WebView
              container, so the voice recording button can be dragged above it -->

@@ -50,6 +50,42 @@ jobs:
             }
             
             async function getPullRequestList() {
+                // A push to a feature branch can only change the mergeability of that
+                // branch's own PR, so scanning every open PR is unnecessary - just look up
+                // the (at most one) open PR whose head is the pushed branch.
+                //
+                // A push to the default branch is different: merging into it can change the
+                // mergeability of every other open PR, so that case scans everything - as
+                // does the scheduled sweep. Each trigger this workflow's `on:` block declares
+                // is handled explicitly below (rather than falling through to "scan
+                // everything" by default), so adding a new trigger without updating this
+                // function fails loudly here instead of silently inheriting full-scan
+                // behavior it was never designed for.
+                if (context.eventName === 'push') {
+                  const defaultBranch = context.payload.repository && context.payload.repository.default_branch;
+                  const pushedBranch = context.ref.replace('refs/heads/', '');
+
+                  if (pushedBranch !== defaultBranch) {
+                    console.log(`Push to feature branch '${pushedBranch}'; scanning only its own PR.`);
+                    return withRetry( () =>
+                      github.rest.pulls.list({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        state: 'open',
+                        head: `${context.repo.owner}:${pushedBranch}`,
+                        per_page: 100,
+                      }),
+                    `List pull request for branch '${pushedBranch}'`
+                    );
+                  }
+
+                  console.log(`Push to default branch '${defaultBranch}'; scanning every open PR.`);
+                } else if (context.eventName === 'schedule') {
+                  console.log('Scheduled sweep; scanning every open PR.');
+                } else {
+                  throw new Error(`Unhandled event '${context.eventName}' in conflict scan - update getPullRequestList() before adding this trigger to the workflow's 'on:' block.`);
+                }
+
                 return withRetry( () =>
                   github.rest.pulls.list({
                     owner: context.repo.owner,

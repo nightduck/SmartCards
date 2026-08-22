@@ -1,9 +1,9 @@
 ---
 name: pr-full-review
-description: Review an AnkiDroid pull request or branch against AnkiDroid's conventions.
+description: Review a SmartCards pull request or branch against AnkiDroid's conventions, which SmartCards inherits.
 ---
 
-# AnkiDroid PR Full Review
+# SmartCards PR Full Review
 
 Review the PR against the standards in [`reviewer-guide.md`](reviewer-guide.md). Report findings in three groups: **blocking gates**, **spec conformance** (does the PR do what its issue asked?), then non-blocking `nit:`s.
 
@@ -12,18 +12,18 @@ comments or reviews, approve, request changes, label, or merge.
 
 ## Skill Usage
 
-Accepts a PR number, a PR URL, or no argument (in which case, review the current branch against `upstream/main`):
+Accepts a PR number, a PR URL, or no argument (in which case, review the current branch against `origin/main`):
 
 ```bash
-pr-full-review 21206
-pr-full-review https://github.com/ankidroid/Anki-Android/pull/21206
+pr-full-review 39
+pr-full-review https://github.com/nightduck/SmartCards/pull/39
 pr-full-review review the checked-out branch's diff against `main`
 ```
 
 ## Fetching the PR
 
-Fetch the PR with the `gh` command. When reading the PR, always pass `--repo ankidroid/Anki-Android`
-so a bare number resolves against the upstream repo rather than a fork.
+Fetch the PR with the `gh` command. When reading the PR, always pass `--repo nightduck/SmartCards`
+so a bare number resolves against SmartCards rather than the AnkiDroid upstream.
 
 **Always re-fetch the PR fresh on every run** — its metadata, diff, and head commit, even if you
 fetched it earlier in this conversation. PRs change between reviews; never reuse cached context.
@@ -41,8 +41,8 @@ Read the existing PR comments and review threads first. Don't repeat feedback th
 raised, and respect points the author or a reviewer has already addressed or deferred.
 
 ```bash
-gh pr view <number> --repo ankidroid/Anki-Android --comments # conversation comments
-gh api repos/ankidroid/Anki-Android/pulls/<number>/comments  # inline code-review comments
+gh pr view <number> --repo nightduck/SmartCards --comments # conversation comments
+gh api repos/nightduck/SmartCards/pulls/<number>/comments  # inline code-review comments
 ```
 
 **Unaddressed maintainer requests are blocking.** Read the full discussion on both the PR
@@ -65,7 +65,7 @@ Open the issue and read it in full — **including its comments**. The decisive
 context often lives in the thread, not the description:
 
 ```bash
-gh issue view <number> --repo ankidroid/Anki-Android --comments
+gh issue view <number> --repo nightduck/SmartCards --comments
 ```
 
 ### Bug fixes: establish the root cause before endorsing the fix

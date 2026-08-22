@@ -73,5 +73,28 @@
     <color name="idle_divider_color">#C7C7C7</color>
     <color name="drag_divider_color">#1A90FF</color>
     <color name="divider_handle_color">#4D4D4D</color>
+
+    <!-- SmartCards visual language (issue #17): secondary/tertiary accents that pair with the
+         existing light-blue colorPrimary. colorPrimary itself is left untouched, it already
+         drives current screens. These fill Material3 color-scheme slots that the app's XML
+         themes never set, so they were previously silently falling back to the stock Material3
+         baseline palette (a purple unrelated to the app's identity) for anything reading them,
+         and to nothing at all for Compose (Theme.kt bridges them but nothing calls setContent
+         yet). Secondary is a calm sage/teal; tertiary is a warm amber, both chosen to sit
+         quietly next to the blue primary without competing with the red/green already used for
+         review-answer counts and buttons. -->
+    <color name="smartcards_secondary_light">#4C6B60</color>
+    <color name="smartcards_on_secondary_light">#FFFFFF</color>
+    <color name="smartcards_tertiary_light">#8C5E22</color>
+    <color name="smartcards_on_tertiary_light">#FFFFFF</color>
+    <color name="smartcards_tertiary_container_light">#FFDDB3</color>
+    <color name="smartcards_on_tertiary_container_light">#2E1600</color>
+
+    <color name="smartcards_secondary_dark">#A8C9BD</color>
+    <color name="smartcards_on_secondary_dark">#1A332B</color>
+    <color name="smartcards_tertiary_dark">#E4BE8B</color>
+    <color name="smartcards_on_tertiary_dark">#452C00</color>
+    <color name="smartcards_tertiary_container_dark">#5C4200</color>
+    <color name="smartcards_on_tertiary_container_dark">#FFDDB3</color>
 </resources>
 

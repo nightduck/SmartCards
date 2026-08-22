@@ -1,8 +1,9 @@
-# AnkiDroid PR Reviewer Guide
+# SmartCards PR Reviewer Guide (AnkiDroid conventions)
 
 ## How to use this guide
 
-This is the **standards corpus** for reviewing AnkiDroid changes - *what* to check, not
+SmartCards is descended from AnkiDroid and inherits its coding and review conventions. This is
+the **standards corpus** for reviewing SmartCards changes - *what* to check, not
 *how* to run a review. It distills the project's documented standards into an actionable
 checklist so a reviewer (human or agent) can work without opening ten other files.
 
@@ -16,7 +17,8 @@ Two rules of engagement:
 
 ## Tone
 
-From the [Code-review guide](https://github.com/ankidroid/Anki-Android/wiki/Code-review-guide):
+From the [Code-review guide](https://github.com/ankidroid/Anki-Android/wiki/Code-review-guide)
+(AnkiDroid's upstream wiki - kept deliberately, SmartCards has no wiki of its own):
 
 - **Establish contributor status first.** Check for the `New Contributor` label and count the
   author's PRs, merged and unmerged (`gh pr list --author <login> --state all`), to gauge how
@@ -35,9 +37,9 @@ From the [Code-review guide](https://github.com/ankidroid/Anki-Android/wiki/Code
 Request changes if any of these fail — they're table stakes before deeper review:
 
 - **CI is green.** Lint, unit, emulator and CodeQL must pass. Don't just glance at the rollup
-  status (`gh pr checks <number> --repo ankidroid/Anki-Android`): if a check is **pending**, say
+  status (`gh pr checks <number> --repo nightduck/SmartCards`): if a check is **pending**, say
   the gate is unverified; if a check is **failing**, read its log (`gh run view <run-id>
-  --repo ankidroid/Anki-Android --log-failed`) and report the actual cause, not just "red".
+  --repo nightduck/SmartCards --log-failed`) and report the actual cause, not just "red".
   For new contributors, explain how to find and read the failure themselves — and consider pasting
   the relevant CI output into the review so they don't have to dig for it. Refer the submitter to
   [`.github/workflows/README.md`](../../../.github/workflows/README.md).
@@ -116,7 +118,7 @@ For code under `com.ichi2.anki.ui.compose.*` (see
 
 Defer to these authoritative references over the distillation above:
 
-- [Code-review guide (wiki)](https://github.com/ankidroid/Anki-Android/wiki/Code-review-guide) — tone, process, when to skip second approval.
+- [Code-review guide (wiki)](https://github.com/ankidroid/Anki-Android/wiki/Code-review-guide) — tone, process, when to skip second approval. (Upstream AnkiDroid wiki, kept deliberately - SmartCards has no wiki of its own.)
 - [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) — contribution workflow, commits, PR labels.
 - [`.github/pull_request_template.md`](../../../.github/pull_request_template.md) — required PR sections and checklist.
 - [`.github/workflows/README.md`](../../../.github/workflows/README.md) — the exact CI jobs and local commands.

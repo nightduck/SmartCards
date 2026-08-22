@@ -1,7 +1,8 @@
 ## Project
-SmartCards is a fork of AnkiDroid (`upstream` remote), repurposed as a language-learning
-flashcard app. This is a solo, deliberately AI-driven project — it does not use AnkiDroid's
-upstream `AI_POLICY.md` contributor restrictions.
+SmartCards is a language-learning flashcard app descended from AnkiDroid, tracked as the
+`upstream` remote. It is no longer part of AnkiDroid's GitHub fork network — refer to it as
+"descended from" or "based on" AnkiDroid, not as a fork. This is a solo, deliberately AI-driven
+project — it does not use AnkiDroid's upstream `AI_POLICY.md` contributor restrictions.
 
 ### Roadmap
 - **Multi-modal cards**: beyond AnkiDroid's existing two-sided text cards, support audio-only
@@ -29,3 +30,6 @@ These are directional, not committed specs.
   (`./gradlew lintAll ktLintCheck lint-rules:test`, `./gradlew jacocoUnitTestReport`).
 - Before considering a PR ready for human review, run it through the `pr-full-review` skill
   (`.agents/skills/pr-full-review`) against the current branch.
+- Never open issues, make comments, or submit PRs to any repository other than 
+  nightduck/SmartCards. Do not perform any write operations of any kind outside the scope
+  of this project, especially not in the upstream repo, ankidroid/Anki-Android

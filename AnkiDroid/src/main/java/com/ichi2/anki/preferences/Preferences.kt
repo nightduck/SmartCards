@@ -285,7 +285,6 @@ fun getFragmentFromXmlRes(
         R.xml.preferences_advanced -> AdvancedSettingsFragment()
         R.xml.preferences_accessibility -> AccessibilitySettingsFragment()
         R.xml.preferences_developer_options -> DeveloperOptionsFragment()
-        R.xml.preferences_reviewer -> ReviewerOptionsFragment()
         R.xml.preferences_custom_buttons -> CustomButtonsSettingsFragment()
         else -> null
     }

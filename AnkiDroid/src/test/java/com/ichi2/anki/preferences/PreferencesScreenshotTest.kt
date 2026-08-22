@@ -7,14 +7,9 @@ import androidx.test.core.app.ActivityScenario
 import com.ichi2.anki.R
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.anki.common.storage.CollectionHelper
-import com.ichi2.anki.settings.Prefs
 import org.junit.Test
 
 class PreferencesScreenshotTest : ScreenshotTest() {
-    init {
-        Prefs.isNewStudyScreenEnabled = true
-    }
-
     @Test
     fun `capture all preference fragments`() {
         val fragments = PreferenceTestUtils.getAllPreferencesFragments(targetContext)

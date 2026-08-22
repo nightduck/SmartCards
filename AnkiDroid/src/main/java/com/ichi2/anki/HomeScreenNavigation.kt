@@ -28,7 +28,6 @@ import com.ichi2.anki.pages.Statistics
  * and the 'More' destination (settings, help and support) are reached from here.
  */
 @NeedsTest("tab switches show/hide correct fragments")
-@NeedsTest("back press returns to Home tab before exiting")
 context(deckPicker: DeckPicker)
 fun setupBottomNavigation() {
     val bottomNav = deckPicker.findViewById<BottomNavigationView>(R.id.bottom_navigation)

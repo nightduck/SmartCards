@@ -783,20 +783,21 @@ class DeckPickerTest : RobolectricTest() {
         }
 
     @Test
-    fun `bottom navigation has correct labels`() =
+    fun `bottom navigation has correct labels`() {
+        assumeTrue("Not running on tablet", qualifiers != "xlarge")
         deckPicker {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val menu = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation.menu
             assertThat(menu.findItem(R.id.nav_home)?.title.toString(), equalTo("Decks"))
             assertThat(menu.findItem(R.id.nav_browser)?.title.toString(), equalTo("Browse"))
             assertThat(menu.findItem(R.id.nav_stats)?.title.toString(), equalTo("Statistics"))
             assertThat(menu.findItem(R.id.nav_more)?.title.toString(), equalTo("More"))
         }
+    }
 
     @Test
-    fun `Alt number shortcuts navigate between bottom navigation destinations`() =
+    fun `Alt number shortcuts navigate between bottom navigation destinations`() {
+        assumeTrue("Not running on tablet", qualifiers != "xlarge")
         deckPicker {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
             val shortcuts =
                 listOf(
@@ -813,12 +814,13 @@ class DeckPickerTest : RobolectricTest() {
                 assertThat(bottomNav.selectedItemId, equalTo(destination.id))
             }
         }
+    }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun `bottom navigation exposes a long title as a tooltip`() =
+    fun `bottom navigation exposes a long title as a tooltip`() {
+        assumeTrue("Not running on tablet", qualifiers != "xlarge")
         deckPicker {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
             val longTitle = "Statistikenübersicht"
 
@@ -826,6 +828,7 @@ class DeckPickerTest : RobolectricTest() {
 
             assertThat(bottomNav.findViewById<View>(R.id.nav_stats).tooltipText.toString(), equalTo(longTitle))
         }
+    }
 
     @Test
     fun `back press closes the floating action menu instead of exiting`() =
@@ -841,9 +844,9 @@ class DeckPickerTest : RobolectricTest() {
         }
 
     @Test
-    fun `back press returns to the deck list from a bottom navigation destination`() =
+    fun `back press returns to the deck list from a bottom navigation destination`() {
+        assumeTrue("Not running on tablet", qualifiers != "xlarge")
         deckPicker {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
             dispatchKeyEvent(keyDownEvent(KeyEvent.KEYCODE_3, KeyEvent.META_ALT_ON))
             advanceRobolectricLooper()
@@ -855,6 +858,7 @@ class DeckPickerTest : RobolectricTest() {
             assertThat("the deck list is shown", bottomNav.selectedItemId, equalTo(R.id.nav_home))
             assertThat("the home screen is not finishing", isFinishing, equalTo(false))
         }
+    }
 
     @Test
     fun `back press on the deck list exits`() =
@@ -883,9 +887,9 @@ class DeckPickerTest : RobolectricTest() {
     }
 
     @Test
-    fun `bottom navigation shortcuts are registered in keyboard shortcut help`() =
+    fun `bottom navigation shortcuts are registered in keyboard shortcut help`() {
+        assumeTrue("Not running on tablet", qualifiers != "xlarge")
         deckPicker {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val bottomNavigationShortcuts = shortcuts.shortcuts.filter { it.shortcut.startsWith("Alt+") }
 
             assertThat(
@@ -900,6 +904,7 @@ class DeckPickerTest : RobolectricTest() {
                 ),
             )
         }
+    }
 
     @Test
     fun `On a new startup, the App Intro is displayed`() =

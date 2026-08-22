@@ -40,4 +40,7 @@
     <dimen name="reviewer_mark_flag">16dp</dimen>
     <dimen name="reviewer_card_corner_radius">16dp</dimen>
     <dimen name="reviewer_card_stroke_width">1dp</dimen>
+    <!-- Fraction of @id/card_area the flashcard occupies, leaving it visibly inset. -->
+    <item name="reviewer_card_width_percent" format="float" type="dimen">0.85</item>
+    <item name="reviewer_card_height_percent" format="float" type="dimen">0.85</item>
 </resources>

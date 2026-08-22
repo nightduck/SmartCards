@@ -57,13 +57,28 @@ class ReviewerCardView
         /** Set to false while another child owns horizontal touches, e.g. the whiteboard. */
         var isDragEnabled = true
 
+        /**
+         * Whether the answer side is showing.
+         *
+         * Only then does a drag pick the card up: on the question side there is nothing to rate,
+         * so a swipe is left to the JavaScript gesture handler and just reveals the answer, the
+         * same as a tap does.
+         */
+        var isAnswerShown = false
+
         private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
         private var dragStartX = 0f
         private var dragStartY = 0f
         private var isDragging = false
 
-        /** Set while the card is off screen, waiting for its replacement content. */
-        private var isAwaitingContent = false
+        /** Set while the card is off screen or on its way there. */
+        private var isThrown = false
+
+        /** Set while the throw-out animation is still playing. */
+        private var isThrowInFlight = false
+
+        /** Set once the replacement content has reached the card. */
+        private var hasReplacementContent = false
 
         private val settleInFallback = Runnable { settleIn() }
 
@@ -78,7 +93,7 @@ class ReviewerCardView
         /** Throws the card off screen towards [direction]. Pairs with [onNextCardShown]. */
         @NeedsTest("the throw and settle-in motion itself; needs a device, see #21")
         fun swipeOut(direction: SwipeDirection) {
-            if (isAwaitingContent || !areAnimationsEnabled) return
+            if (isThrown || !areAnimationsEnabled) return
             throwOut(direction)
         }
 
@@ -95,7 +110,7 @@ class ReviewerCardView
         }
 
         override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-            if (!isDragEnabled || isAwaitingContent) return false
+            if (!isDragEnabled || !isAnswerShown || isThrown) return false
             when (ev.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     dragStartX = ev.rawX
@@ -173,29 +188,46 @@ class ReviewerCardView
         }
 
         private fun throwOut(direction: SwipeDirection) {
-            isAwaitingContent = true
+            isThrown = true
+            isThrowInFlight = true
+            hasReplacementContent = false
             // A rating can be given while a flip is still playing, so take the card back over
             animate().cancel()
             contentView?.animate()?.cancel()
             contentView?.alpha = 1f
             rotationY = 0f
+            // The card keeps its opacity on the way out: fading it made the throw read as the
+            // card blinking out rather than being flung off the screen edge.
             animate()
                 .translationX(direction.sign * width * THROW_OUT_WIDTHS)
                 .rotation(direction.sign * MAX_DRAG_ROTATION)
-                .alpha(0f)
                 .setDuration(THROW_OUT_DURATION)
                 .setInterpolator(AccelerateInterpolator())
-                .start()
+                .withEndAction {
+                    isThrowInFlight = false
+                    settleInIfReady()
+                }.start()
             // The content usually arrives well within this, but a failed action must not
             // leave the card stranded off screen.
             postDelayed(settleInFallback, CONTENT_TIMEOUT)
         }
 
         private fun completePendingSwipe(): Boolean {
-            if (!isAwaitingContent) return false
+            if (!isThrown) return false
+            hasReplacementContent = true
+            settleInIfReady()
+            return true
+        }
+
+        /**
+         * The replacement content usually arrives long before the card has finished being thrown.
+         * Settling in early would cut the throw short and leave nothing to see, so the card waits
+         * for both.
+         */
+        private fun settleInIfReady() {
+            if (isThrowInFlight || !hasReplacementContent) return
             removeCallbacks(settleInFallback)
             settleIn()
-            return true
         }
 
         /** Puts the card back at rest, whatever an interrupted animation left it in. */
@@ -209,7 +241,9 @@ class ReviewerCardView
         }
 
         private fun settleIn() {
-            isAwaitingContent = false
+            isThrown = false
+            isThrowInFlight = false
+            hasReplacementContent = false
             animate().cancel()
             contentView?.animate()?.cancel()
             contentView?.alpha = 1f
@@ -308,8 +342,11 @@ class ReviewerCardView
             private const val CAMERA_DISTANCE_DP = 8000f
 
             private const val SPRING_BACK_DURATION = 220L
-            private const val THROW_OUT_DURATION = 200L
-            private const val SETTLE_IN_DURATION = 200L
+
+            // Slow enough that a rating given by button, where there is no drag leading into it,
+            // still reads as the card being thrown off the screen
+            private const val THROW_OUT_DURATION = 330L
+            private const val SETTLE_IN_DURATION = 260L
             private const val FLIP_HALF_DURATION = 170L
             private const val CONTENT_TIMEOUT = 1500L
         }

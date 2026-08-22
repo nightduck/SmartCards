@@ -120,6 +120,10 @@ open class SafeWebViewLayout :
         }
     }
 
+    /** Whether the page itself can absorb a horizontal scroll, e.g. because it is zoomed in. */
+    @MainThread
+    fun canPageScrollHorizontally(direction: Int) = webView.canScrollHorizontally(direction)
+
     @MainThread
     fun createPrintDocumentAdapter(documentName: String) = webView.createPrintDocumentAdapter(documentName)
 

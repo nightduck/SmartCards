@@ -118,6 +118,13 @@ class ReviewerViewModel(
     val pageDownFlow = MutableSharedFlow<Unit>()
     val statesMutationEvalFlow = MutableSharedFlow<String>()
 
+    /**
+     * Emits a side once its content has been sent to the WebView, as opposed to [showingAnswer],
+     * which changes before the content is rendered. Card animations are driven off this so that
+     * a card is never seen swapping its content mid-animation.
+     */
+    val cardSideShownFlow = MutableSharedFlow<SingleCardSide>()
+
     override val server: AnkiServer = AnkiServer(this, repository.getServerPort()).also { it.start() }
     private val stateMutationKey = repository.generateStateMutationKey()
     private val stateMutationJs: Deferred<String> = asyncIO { repository.getCustomSchedulingJs() }
@@ -475,9 +482,15 @@ class ReviewerViewModel(
         }
     }
 
+    override suspend fun showAnswer() {
+        super.showAnswer()
+        cardSideShownFlow.emit(SingleCardSide.BACK)
+    }
+
     override suspend fun showQuestion() {
         Timber.v("ReviewerViewModel::showQuestion")
         super.showQuestion()
+        cardSideShownFlow.emit(SingleCardSide.FRONT)
         runStateMutationHook()
         updateMarkIcon()
         updateFlagIcon()

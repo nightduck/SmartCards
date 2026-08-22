@@ -441,20 +441,6 @@ class DeckPickerTest : RobolectricTest() {
         assertEquals(expectedTitle, actualTitle)
     }
 
-    private fun withBottomNavigationEnabled(action: () -> Unit) {
-        val preferences = Prefs.sharedPrefs
-        val key = Prefs.key(R.string.dev_bottom_nav_key)
-        val previousValue = if (preferences.contains(key)) preferences.getBoolean(key, false) else null
-        preferences.edit { putBoolean(key, true) }
-        try {
-            action()
-        } finally {
-            preferences.edit {
-                if (previousValue == null) remove(key) else putBoolean(key, previousValue)
-            }
-        }
-    }
-
     private fun keyDownEvent(
         keyCode: Int,
         modifiers: Int,
@@ -798,74 +784,110 @@ class DeckPickerTest : RobolectricTest() {
 
     @Test
     fun `bottom navigation has correct labels`() =
-        withBottomNavigationEnabled {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
-            deckPicker {
-                val menu = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation!!.menu
-                assertThat(menu.findItem(R.id.nav_home)?.title.toString(), equalTo("Decks"))
-                assertThat(menu.findItem(R.id.nav_browser)?.title.toString(), equalTo("Browse"))
-                assertThat(menu.findItem(R.id.nav_stats)?.title.toString(), equalTo("Statistics"))
-                assertThat(menu.findItem(R.id.nav_more)?.title.toString(), equalTo("More"))
-            }
+        deckPicker {
+            val menu = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation.menu
+            assertThat(menu.findItem(R.id.nav_home)?.title.toString(), equalTo("Decks"))
+            assertThat(menu.findItem(R.id.nav_browser)?.title.toString(), equalTo("Browse"))
+            assertThat(menu.findItem(R.id.nav_stats)?.title.toString(), equalTo("Statistics"))
+            assertThat(menu.findItem(R.id.nav_more)?.title.toString(), equalTo("More"))
         }
 
     @Test
     fun `Alt number shortcuts navigate between bottom navigation destinations`() =
-        withBottomNavigationEnabled {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
-            deckPicker {
-                val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation!!
-                val shortcuts =
-                    listOf(
-                        KeyEvent.KEYCODE_1 to BottomNavController.NavigationItem.HOME,
-                        KeyEvent.KEYCODE_2 to BottomNavController.NavigationItem.BROWSER,
-                        KeyEvent.KEYCODE_3 to BottomNavController.NavigationItem.STATS,
-                        KeyEvent.KEYCODE_4 to BottomNavController.NavigationItem.MORE,
-                    )
+        deckPicker {
+            val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
+            val shortcuts =
+                listOf(
+                    KeyEvent.KEYCODE_1 to BottomNavController.NavigationItem.HOME,
+                    KeyEvent.KEYCODE_2 to BottomNavController.NavigationItem.BROWSER,
+                    KeyEvent.KEYCODE_3 to BottomNavController.NavigationItem.STATS,
+                    KeyEvent.KEYCODE_4 to BottomNavController.NavigationItem.MORE,
+                )
 
-                shortcuts.forEach { (keyCode, destination) ->
-                    val handled = dispatchKeyEvent(keyDownEvent(keyCode, KeyEvent.META_ALT_ON))
+            shortcuts.forEach { (keyCode, destination) ->
+                val handled = dispatchKeyEvent(keyDownEvent(keyCode, KeyEvent.META_ALT_ON))
 
-                    assertThat("Alt shortcut is handled", handled, equalTo(true))
-                    assertThat(bottomNav.selectedItemId, equalTo(destination.id))
-                }
+                assertThat("Alt shortcut is handled", handled, equalTo(true))
+                assertThat(bottomNav.selectedItemId, equalTo(destination.id))
             }
         }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun `bottom navigation exposes a long title as a tooltip`() =
-        withBottomNavigationEnabled {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
-            deckPicker {
-                val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation!!
-                val longTitle = "Statistikenübersicht"
+        deckPicker {
+            val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
+            val longTitle = "Statistikenübersicht"
 
-                bottomNav.menu.findItem(R.id.nav_stats).title = longTitle
+            bottomNav.menu.findItem(R.id.nav_stats).title = longTitle
 
-                assertThat(bottomNav.findViewById<View>(R.id.nav_stats).tooltipText.toString(), equalTo(longTitle))
-            }
+            assertThat(bottomNav.findViewById<View>(R.id.nav_stats).tooltipText.toString(), equalTo(longTitle))
         }
 
     @Test
-    fun `bottom navigation shortcuts are registered in keyboard shortcut help`() =
-        withBottomNavigationEnabled {
-            assumeTrue("Not running on tablet", qualifiers != "xlarge")
-            deckPicker {
-                val bottomNavigationShortcuts = shortcuts.shortcuts.filter { it.shortcut.startsWith("Alt+") }
+    fun `back press closes the floating action menu instead of exiting`() =
+        deckPicker {
+            floatingActionMenu.showFloatingActionMenu()
+            advanceRobolectricLooper()
 
-                assertThat(
-                    bottomNavigationShortcuts.associate { it.shortcut to it.label },
-                    equalTo(
-                        mapOf(
-                            "Alt+1" to "Deck picker",
-                            "Alt+2" to "Card Browser",
-                            "Alt+3" to "Open statistics",
-                            "Alt+4" to "More",
-                        ),
+            onBackPressedDispatcher.onBackPressed()
+            advanceRobolectricLooper()
+
+            assertThat("the floating action menu is closed", floatingActionMenu.isFABOpen, equalTo(false))
+            assertThat("the home screen is not finishing", isFinishing, equalTo(false))
+        }
+
+    @Test
+    fun `back press returns to the deck list from a bottom navigation destination`() =
+        deckPicker {
+            val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
+            dispatchKeyEvent(keyDownEvent(KeyEvent.KEYCODE_3, KeyEvent.META_ALT_ON))
+            advanceRobolectricLooper()
+            assertThat("statistics are shown", bottomNav.selectedItemId, equalTo(R.id.nav_stats))
+
+            onBackPressedDispatcher.onBackPressed()
+            advanceRobolectricLooper()
+
+            assertThat("the deck list is shown", bottomNav.selectedItemId, equalTo(R.id.nav_home))
+            assertThat("the home screen is not finishing", isFinishing, equalTo(false))
+        }
+
+    @Test
+    fun `back press on the deck list exits`() =
+        deckPicker {
+            onBackPressedDispatcher.onBackPressed()
+            advanceRobolectricLooper()
+
+            assertThat("the home screen is finishing", isFinishing, equalTo(true))
+        }
+
+    @Test
+    fun `back press on the deck list does not exit if 'exit via double tap' is set`() {
+        Prefs.sharedPrefs.edit { putBoolean(Prefs.key(R.string.exit_via_double_tap_back_key), true) }
+        deckPicker {
+            onBackPressedDispatcher.onBackPressed()
+            advanceRobolectricLooper()
+
+            assertThat("a single back press does not exit", isFinishing, equalTo(false))
+        }
+    }
+
+    @Test
+    fun `bottom navigation shortcuts are registered in keyboard shortcut help`() =
+        deckPicker {
+            val bottomNavigationShortcuts = shortcuts.shortcuts.filter { it.shortcut.startsWith("Alt+") }
+
+            assertThat(
+                bottomNavigationShortcuts.associate { it.shortcut to it.label },
+                equalTo(
+                    mapOf(
+                        "Alt+1" to "Deck picker",
+                        "Alt+2" to "Card Browser",
+                        "Alt+3" to "Open statistics",
+                        "Alt+4" to "More",
                     ),
-                )
-            }
+                ),
+            )
         }
 
     @Test

@@ -63,7 +63,7 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     @Test
     fun hierarchy_lines() =
         runTest {
-            enableBottomNavigation()
+            enableDeckHierarchyLines()
 
             val root1 = addDeck("Math")
             val mathAlg = addDeck("Math::Algebra")
@@ -83,7 +83,7 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     @Test
     fun hierarchy_lines_collapsed() =
         runTest {
-            enableBottomNavigation()
+            enableDeckHierarchyLines()
 
             val root = addDeck("Math")
             addDeck("Math::Algebra")
@@ -101,7 +101,7 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     @Test
     fun hierarchy_lines_deep_nesting() =
         runTest {
-            enableBottomNavigation()
+            enableDeckHierarchyLines()
 
             addDeck("Level1")
             addDeck("Level1::Level2")
@@ -127,7 +127,7 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
     @Test
     fun hierarchy_lines_many_siblings() =
         runTest {
-            enableBottomNavigation()
+            enableDeckHierarchyLines()
 
             val root = addDeck("Parent")
             addDeck("Parent::Child1")
@@ -143,7 +143,8 @@ class DeckPickerScreenshotTest : ScreenshotTest() {
             captureScreen("hierarchy_lines_many_siblings")
         }
 
-    private fun enableBottomNavigation() {
+    /** The deck hierarchy lines are still behind the bottom navigation developer option */
+    private fun enableDeckHierarchyLines() {
         Prefs.sharedPrefs.edit { putBoolean(Prefs.key(R.string.dev_bottom_nav_key), true) }
     }
 

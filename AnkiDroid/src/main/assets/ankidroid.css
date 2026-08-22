@@ -118,7 +118,9 @@ img {
  * element to animate as a fallback.
  */
 @supports selector(::details-content) {
-    :root {
+    /* `interpolate-size` is inherited, so it is set on the panel rather than on `:root`: a deck's
+       own CSS should not start interpolating to `auto` because of a rule meant for this panel. */
+    #qa details.explainer {
         interpolate-size: allow-keywords;
     }
 

@@ -86,10 +86,13 @@ private const val SMARTCARDS_CSS =
 .phonetic { color: #666; font-style: italic; margin: 4px 0; }
 .example { font-size: 16px; color: #444; margin-top: 12px; }
 .image img { max-width: 100%; max-height: 240px; }
-details.word-spoiler summary, details.explainer summary {
+details.word-spoiler summary {
     cursor: pointer;
     color: #0066cc;
-}"""
+}
+/* The explainer disclosure is deliberately left unstyled here: the app draws it as a dictionary
+   panel from `ankidroid.css`, using theme colours a collection can't know about. Styling it here
+   would freeze one set of colours into every collection the note type is added to. */"""
 
 /**
  * Builds (but does not persist) SmartCards' custom "audio prompt" vocabulary note type.

@@ -219,6 +219,13 @@ class ReviewerFragment :
         }
 
         binding.webViewContainer.setFrameStyle()
+        if (Prefs.frameStyle == FrameStyle.BOX) {
+            // 'Box' wants the content edge to edge, so it overrides the card's inset too
+            binding.webViewContainer.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                matchConstraintPercentWidth = 1F
+                matchConstraintPercentHeight = 1F
+            }
+        }
 
         if (Prefs.showAnswerFeedback) {
             viewModel.answerFeedbackFlow.collectIn(lifecycleScope) { ease ->
@@ -365,6 +372,12 @@ class ReviewerFragment :
             contentView = binding.webViewLayout
             canContentScrollHorizontally = webViewLayout::canPageScrollHorizontally
             onSwipe = { gesture -> bindingMap.onGesture(gesture) }
+        }
+
+        // A swipe on the question side has nothing to rate, so it is left to the JavaScript
+        // gesture handler and just reveals the answer, rather than dragging the card around.
+        viewModel.showingAnswer.collectIn(lifecycleScope) { isAnswerShown ->
+            binding.webViewContainer.isAnswerShown = isAnswerShown
         }
 
         // After a recreation the restored side is re-rendered without the user asking for it,

@@ -4,6 +4,7 @@
 package com.ichi2.anki.ui.windows.reviewer
 
 import android.content.Context
+import android.os.Looper
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
@@ -17,6 +18,8 @@ import com.ichi2.themes.Themes
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
+import java.time.Duration
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -34,6 +37,8 @@ class ReviewerCardViewTest {
             ReviewerCardView(context).apply {
                 // A child is needed to take the initial touch, like the card's WebView does
                 addView(View(context).apply { isClickable = true }, CARD_WIDTH, CARD_HEIGHT)
+                // Only the answer side can be rated by swiping; most cases exercise that
+                isAnswerShown = true
                 onSwipe = { gesture ->
                     swipedGesture = gesture
                     true
@@ -96,6 +101,16 @@ class ReviewerCardViewTest {
     }
 
     @Test
+    fun `the question side does not drag, leaving the swipe to reveal the answer`() {
+        cardView.isAnswerShown = false
+
+        drag(deltaX = CARD_WIDTH * 0.6f)
+
+        assertEquals(0f, cardView.translationX)
+        assertNull(swipedGesture)
+    }
+
+    @Test
     fun `dragging is ignored while disabled`() {
         cardView.isDragEnabled = false
 
@@ -114,13 +129,29 @@ class ReviewerCardViewTest {
         assertNull(swipedGesture)
     }
 
+    /**
+     * The replacement card is usually ready long before the throw has finished playing. Settling
+     * in at that point cut the throw short, which is what made a rating given by button look like
+     * no animation had happened at all.
+     */
     @Test
-    fun `a thrown card accepts drags again once the next card is shown`() {
+    fun `content arriving mid-throw does not cut the throw short`() {
         cardView.swipeOut(SwipeDirection.LEFT)
+
         cardView.onNextCardShown()
 
         drag(deltaX = CARD_WIDTH * 0.6f)
+        assertNull(swipedGesture, "the card should still be mid-throw, not back and draggable")
+    }
 
+    @Test
+    fun `a thrown card accepts drags again once the throw has played out`() {
+        cardView.swipeOut(SwipeDirection.LEFT)
+        cardView.onNextCardShown()
+
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
+
+        drag(deltaX = CARD_WIDTH * 0.6f)
         assertEquals(Gesture.SWIPE_RIGHT, swipedGesture)
     }
 

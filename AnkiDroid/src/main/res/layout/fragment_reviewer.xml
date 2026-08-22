@@ -120,70 +120,87 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.ichi2.anki.ui.windows.reviewer.ReviewerCardView
-            android:id="@+id/web_view_container"
-            style="@style/CardView.ReviewerStyle"
+        <!-- The card takes a fraction of this area rather than filling it, so it reads as a card
+             sitting on the screen. Sizing it by percent rather than by a margin keeps that
+             fraction the same on every screen size. -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_area"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_marginHorizontal="@dimen/reviewer_side_margin">
+            android:clipChildren="false">
 
-            <com.ichi2.anki.workarounds.SafeWebViewLayout
-                android:id="@+id/web_view_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:backgroundTint="@color/white" />
+            <com.ichi2.anki.ui.windows.reviewer.ReviewerCardView
+                android:id="@+id/web_view_container"
+                style="@style/CardView.ReviewerStyle"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintWidth_percent="@dimen/reviewer_card_width_percent"
+                app:layout_constraintHeight_percent="@dimen/reviewer_card_height_percent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="6dp"
-                >
+                <com.ichi2.anki.workarounds.SafeWebViewLayout
+                    android:id="@+id/web_view_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:backgroundTint="@color/white" />
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/flag_icon"
-                    android:layout_width="@dimen/reviewer_mark_flag"
-                    android:layout_height="@dimen/reviewer_mark_flag"
-                    tools:srcCompat="@drawable/ic_flag_red"
-                    android:layout_marginEnd="2dp"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="6dp"
+                    >
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/mark_icon"
-                    android:layout_width="@dimen/reviewer_mark_flag"
-                    android:layout_height="@dimen/reviewer_mark_flag"
-                    app:srcCompat="@drawable/ic_mark"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    />
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/flag_icon"
+                        android:layout_width="@dimen/reviewer_mark_flag"
+                        android:layout_height="@dimen/reviewer_mark_flag"
+                        tools:srcCompat="@drawable/ic_flag_red"
+                        android:layout_marginEnd="2dp"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        />
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/mark_icon"
+                        android:layout_width="@dimen/reviewer_mark_flag"
+                        android:layout_height="@dimen/reviewer_mark_flag"
+                        app:srcCompat="@drawable/ic_mark"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        />
 
-                <com.ichi2.anki.ui.windows.reviewer.AnswerFeedbackView
-                    android:id="@+id/answer_feedback"
-                    android:layout_width="@dimen/reviewer_mark_flag"
-                    android:layout_height="@dimen/reviewer_mark_flag"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    tools:srcCompat="@drawable/ic_ease_good"
-                    />
-            </LinearLayout>
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
 
-        </com.ichi2.anki.ui.windows.reviewer.ReviewerCardView>
+                    <com.ichi2.anki.ui.windows.reviewer.AnswerFeedbackView
+                        android:id="@+id/answer_feedback"
+                        android:layout_width="@dimen/reviewer_mark_flag"
+                        android:layout_height="@dimen/reviewer_mark_flag"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        tools:srcCompat="@drawable/ic_ease_good"
+                        />
+                </LinearLayout>
 
-        <!-- The elevation should be higher than the one used by the WebView
-             container, so the voice recording button can be dragged above it -->
+            </com.ichi2.anki.ui.windows.reviewer.ReviewerCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- The elevation must stay higher than ?attr/reviewerCardElevation, so the voice
+             recording button can be dragged above the card. This layout has no background, so
+             the elevation only orders it in z and casts no shadow of its own. -->
         <LinearLayout
             android:id="@+id/bottom_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:elevation="1dp"
+            android:elevation="8dp"
             android:clipChildren="false"
             android:showDividers="middle|beginning|end"
             android:divider="@drawable/vertical_spacer_8dp"

@@ -32,6 +32,7 @@ import com.ichi2.anki.dialogs.DatabaseErrorDialog
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
 import com.ichi2.anki.dialogs.DeckPickerContextMenu.DeckPickerContextMenuOption
 import com.ichi2.anki.dialogs.DeckPickerContextMenuResult
+import com.ichi2.anki.dialogs.decklanguage.DeckLanguageDialog
 import com.ichi2.anki.dialogs.setDeckPickerContextMenuResult
 import com.ichi2.anki.dialogs.utils.input
 import com.ichi2.anki.dialogs.utils.performPositiveClick
@@ -930,6 +931,37 @@ class DeckPickerTest : RobolectricTest() {
                     assertThat(extra.permissions, equalTo(listOf(INTERNET)))
                 }
             }
+        }
+
+    @Test
+    fun `ContextMenu opens the deck language dialog`() =
+        deckPicker {
+            val did = addDeck("Deck 1")
+
+            selectContextMenuOption(ContextMenuOption.DECK_LANGUAGE, did)
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+            assertNotNull(
+                supportFragmentManager.fragments.filterIsInstance<DeckLanguageDialog>().singleOrNull(),
+                "'Deck language' should open the language dialog",
+            )
+            dismissAllDialogFragments()
+        }
+
+    @Test
+    fun `creating a deck asks for its language`() =
+        deckPicker {
+            showCreateDeckDialog()
+            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+            dialog.input = "My Deck"
+            dialog.performPositiveClick()
+            ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+            assertNotNull(
+                supportFragmentManager.fragments.filterIsInstance<DeckLanguageDialog>().singleOrNull(),
+                "a newly created deck should be offered a language",
+            )
+            dismissAllDialogFragments()
         }
 
     @Test

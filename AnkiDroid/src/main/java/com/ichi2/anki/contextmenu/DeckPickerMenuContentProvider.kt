@@ -114,6 +114,9 @@ class DeckPickerMenuContentProvider(
                 add(DeckPickerContextMenu.DeckPickerContextMenuOption.CREATE_SHORTCUT)
                 if (!isDynamic) {
                     add(DeckPickerContextMenu.DeckPickerContextMenuOption.EDIT_DESCRIPTION)
+                    // a filtered deck's cards are borrowed from other decks, so a language of
+                    // its own would be meaningless
+                    add(DeckPickerContextMenu.DeckPickerContextMenuOption.DECK_LANGUAGE)
                 }
                 if (Prefs.newReviewRemindersEnabled) {
                     add(DeckPickerContextMenu.DeckPickerContextMenuOption.SCHEDULE_REMINDERS)

@@ -7,13 +7,16 @@ import android.content.Context
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.appcompat.widget.ThemeUtils
 import androidx.core.view.updateLayoutParams
+import com.google.android.material.R.attr.colorSecondary
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.ichi2.anki.LanguageUtils
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.libanki.CardOrdinal
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.FrameStyle
+import com.ichi2.compose.theme.SmartCardsCorners
 import com.ichi2.themes.Themes
 import com.ichi2.utils.toRGBHex
 import org.intellij.lang.annotations.Language
@@ -41,6 +44,7 @@ fun stdHtml(
     val canvasColor = ThemeUtils.getThemeAttrColor(context, android.R.attr.colorBackground).toRGBHex()
     val fgColor = ThemeUtils.getThemeAttrColor(context, android.R.attr.textColor).toRGBHex()
     val colors = ":root$rootNightMode { --canvas: $canvasColor; --fg: $fgColor; }"
+    val smartCardsTokens = smartCardsCssTokens(context)
 
     val jsAssets: List<String> =
         listOf(
@@ -66,6 +70,7 @@ fun stdHtml(
             <style>
                 .night-mode button { --canvas: #606060; --fg: #eee; }
                 $colors
+                $smartCardsTokens
             </style>
         </head>
         <body class="${bodyClass()}">
@@ -74,6 +79,31 @@ fun stdHtml(
         </body>
         </html>
         """.trimIndent()
+}
+
+/**
+ * The Phase 0 visual tokens (issue #17) a card's CSS needs, as a `:root` custom property block.
+ *
+ * A card renders in a WebView, which can't read theme attributes or a Compose token, so anything
+ * drawn inside a card that should match the app around it has to be handed the values. The rest
+ * of the styling lives in `ankidroid.css`; these are only the parts that must come from the app.
+ *
+ * `--sc-motion-duration` is emitted only when animations are off, so that a page with animations
+ * on still honours the `prefers-reduced-motion` default in `ankidroid.css`.
+ *
+ * @see stdHtml
+ */
+private fun smartCardsCssTokens(context: Context): String {
+    val accent = ThemeUtils.getThemeAttrColor(context, colorSecondary).toRGBHex()
+    val properties =
+        mutableListOf(
+            "--sc-explainer-accent: $accent;",
+            "--sc-explainer-radius: ${SmartCardsCorners.medium.value.toInt()}px;",
+        )
+    if (!Animations.areAnimationsEnabled(context)) {
+        properties.add("--sc-motion-duration: 0ms;")
+    }
+    return ":root { ${properties.joinToString(" ")} }"
 }
 
 /**

@@ -63,6 +63,27 @@ class SmartCardsNotetypeTest : InMemoryAnkiTest() {
         assertThat(card.answer(col), containsString("dog"))
     }
 
+    @Test
+    fun `explainer is emitted as a details disclosure the app can style`() {
+        val note = addSampleNote()
+        // `#qa details.explainer` in ankidroid.css draws this as the dictionary panel, and
+        // `isInteractable()` in ankidroid-reviewer.js exempts its SUMMARY from gesture capture.
+        // Both key off this markup, and neither can be reached from a unit test.
+        for (card in note.cards(col)) {
+            assertThat(card.answer(col), containsString("""<details class="explainer">"""))
+            assertThat(card.answer(col), containsString("<summary>More</summary>"))
+        }
+    }
+
+    @Test
+    fun `explainer is left unstyled by the note type`() {
+        // The panel's colours come from the app's theme via ankidroid.css. Styling the explainer
+        // here would freeze a colour into every collection the note type is added to - and win,
+        // since a note type's CSS is injected after ankidroid.css.
+        val notetype = col.createSmartCardsNoteType()
+        assertThat(notetype.css, not(containsString("details.explainer")))
+    }
+
     private fun addSampleNote(): Note {
         val notetype = col.createSmartCardsNoteType()
         val note =
@@ -71,6 +92,7 @@ class SmartCardsNotetypeTest : InMemoryAnkiTest() {
                 setItem("Translation", "dog")
                 setItem("Phonetic Spelling", "ˈpe.ro")
                 setItem("Example Sentence", "El perro corre en el parque.")
+                setItem("Explainer", "Masculine noun. Feminine: perra.")
             }
         col.addNote(note)
         return note

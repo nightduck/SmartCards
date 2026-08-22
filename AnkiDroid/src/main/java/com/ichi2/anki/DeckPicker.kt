@@ -538,6 +538,9 @@ open class DeckPicker :
 
         setViewBinding(binding)
         enableToolbar()
+        // the shared toolbar layout carries an up arrow, which the drawer used to replace with its
+        // hamburger. The home screen is the root of the app, so it has nothing to navigate up to.
+        findViewById<Toolbar>(R.id.toolbar).navigationIcon = null
         // TODO This method is run on every activity recreation, which can happen often.
         //  It seems that the original idea was for this to only run once, on app start.
         //  This method triggers backups, sync, and may re-show dialogs

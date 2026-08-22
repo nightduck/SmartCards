@@ -252,6 +252,16 @@
         <item name="strokeColor">?attr/widgetStrokeColor</item>
     </style>
 
+    <!-- The study screen's flashcard: an always-visible outline, softer corners and enough
+         elevation to lift it off the background, so the flip and swipe motions read as a card. -->
+    <style name="CardView.ReviewerStyle" parent="CardView.ViewerStyle">
+        <item name="android:elevation">?attr/reviewerCardElevation</item>
+        <item name="cardElevation">?attr/reviewerCardElevation</item>
+        <item name="cardCornerRadius">@dimen/reviewer_card_corner_radius</item>
+        <item name="strokeWidth">@dimen/reviewer_card_stroke_width</item>
+        <item name="strokeColor">?attr/reviewerCardStrokeColor</item>
+    </style>
+
     <style name="Theme.AppCompat.Transparent.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>

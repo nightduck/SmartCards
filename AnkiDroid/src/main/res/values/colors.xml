@@ -96,5 +96,10 @@
     <color name="smartcards_on_tertiary_dark">#452C00</color>
     <color name="smartcards_tertiary_container_dark">#5C4200</color>
     <color name="smartcards_on_tertiary_container_dark">#FFDDB3</color>
+
+    <!-- Outline of the study screen's flashcard. Low contrast on purpose: it should describe the
+         card's edge without competing with the card content. -->
+    <color name="reviewer_card_stroke_light">#1F000000</color>
+    <color name="reviewer_card_stroke_dark">#33FFFFFF</color>
 </resources>
 

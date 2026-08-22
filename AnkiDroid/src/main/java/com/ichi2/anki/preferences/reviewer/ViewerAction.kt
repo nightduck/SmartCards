@@ -183,6 +183,7 @@ enum class ViewerAction(
                     keycode(KeyEvent.KEYCODE_BUTTON_X, side = CardSide.ANSWER),
                     keycode(KeyEvent.KEYCODE_2, side = CardSide.ANSWER),
                     keycode(KeyEvent.KEYCODE_NUMPAD_2, side = CardSide.ANSWER),
+                    gesture(Gesture.SWIPE_LEFT, side = CardSide.ANSWER),
                 )
             ANSWER_GOOD ->
                 listOf(
@@ -193,6 +194,7 @@ enum class ViewerAction(
                     keycode(KeyEvent.KEYCODE_SPACE, side = CardSide.ANSWER),
                     keycode(KeyEvent.KEYCODE_ENTER, side = CardSide.ANSWER),
                     keycode(KeyEvent.KEYCODE_NUMPAD_ENTER, side = CardSide.ANSWER),
+                    gesture(Gesture.SWIPE_RIGHT, side = CardSide.ANSWER),
                 )
             ANSWER_EASY ->
                 listOf(
@@ -217,6 +219,10 @@ enum class ViewerAction(
                     gesture(Gesture.TAP_BOTTOM_LEFT, side = CardSide.QUESTION),
                     gesture(Gesture.TAP_BOTTOM, side = CardSide.QUESTION),
                     gesture(Gesture.TAP_BOTTOM_RIGHT, side = CardSide.QUESTION),
+                    // Pair the ANSWER_HARD/ANSWER_GOOD swipes with "flip and answer" on the
+                    // question side, so the same swipe first reveals the answer.
+                    gesture(Gesture.SWIPE_LEFT, side = CardSide.QUESTION),
+                    gesture(Gesture.SWIPE_RIGHT, side = CardSide.QUESTION),
                 )
             }
             // No default gestures

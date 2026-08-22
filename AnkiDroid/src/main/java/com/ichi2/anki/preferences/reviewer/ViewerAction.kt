@@ -207,6 +207,18 @@ enum class ViewerAction(
                     keycode(KeyEvent.KEYCODE_SPACE, side = CardSide.QUESTION),
                     keycode(KeyEvent.KEYCODE_ENTER, side = CardSide.QUESTION),
                     keycode(KeyEvent.KEYCODE_NUMPAD_ENTER, side = CardSide.QUESTION),
+                    // Tapping the card reveals the answer. Every single-tap zone is bound (rather
+                    // than just e.g. TAP_CENTER) so this works regardless of the user's configured
+                    // TapGestureMode (four-point or nine-point) - see GestureParser.
+                    gesture(Gesture.TAP_TOP_LEFT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_TOP, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_TOP_RIGHT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_LEFT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_CENTER, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_RIGHT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_BOTTOM_LEFT, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_BOTTOM, side = CardSide.QUESTION),
+                    gesture(Gesture.TAP_BOTTOM_RIGHT, side = CardSide.QUESTION),
                     // Pair the ANSWER_HARD/ANSWER_GOOD swipes with "flip and answer" on the
                     // question side, so the same swipe first reveals the answer.
                     gesture(Gesture.SWIPE_LEFT, side = CardSide.QUESTION),

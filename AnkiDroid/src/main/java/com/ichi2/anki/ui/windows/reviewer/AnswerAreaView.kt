@@ -30,11 +30,7 @@ class AnswerAreaView : FrameLayout {
 
     private val binding = ViewAnswerAreaBinding.inflate(LayoutInflater.from(context), this)
 
-    fun setButtonListeners(
-        onRatingClicked: (Rating) -> Unit,
-        onShowAnswerClicked: () -> Unit,
-    ) {
-        binding.showAnswerButton.setOnClickListener { onShowAnswerClicked() }
+    fun setButtonListeners(onRatingClicked: (Rating) -> Unit) {
         binding.againButton.setOnClickListener { onRatingClicked(Rating.AGAIN) }
         binding.hardButton.setOnClickListener { onRatingClicked(Rating.HARD) }
         binding.goodButton.setOnClickListener { onRatingClicked(Rating.GOOD) }
@@ -58,13 +54,7 @@ class AnswerAreaView : FrameLayout {
     }
 
     fun setAnswerState(isAnswerShown: Boolean) {
-        if (isAnswerShown) {
-            binding.showAnswerButton.visibility = INVISIBLE
-            binding.answerButtonsLayout.visibility = VISIBLE
-        } else {
-            binding.showAnswerButton.visibility = VISIBLE
-            binding.answerButtonsLayout.visibility = INVISIBLE
-        }
+        binding.answerButtonsLayout.visibility = if (isAnswerShown) VISIBLE else INVISIBLE
     }
 
     fun hideHardAndEasyButtons() {

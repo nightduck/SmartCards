@@ -785,6 +785,7 @@ class DeckPickerTest : RobolectricTest() {
     @Test
     fun `bottom navigation has correct labels`() =
         deckPicker {
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val menu = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation.menu
             assertThat(menu.findItem(R.id.nav_home)?.title.toString(), equalTo("Decks"))
             assertThat(menu.findItem(R.id.nav_browser)?.title.toString(), equalTo("Browse"))
@@ -795,6 +796,7 @@ class DeckPickerTest : RobolectricTest() {
     @Test
     fun `Alt number shortcuts navigate between bottom navigation destinations`() =
         deckPicker {
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
             val shortcuts =
                 listOf(
@@ -816,6 +818,7 @@ class DeckPickerTest : RobolectricTest() {
     @SdkSuppress(minSdkVersion = 26)
     fun `bottom navigation exposes a long title as a tooltip`() =
         deckPicker {
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
             val longTitle = "Statistikenübersicht"
 
@@ -840,6 +843,7 @@ class DeckPickerTest : RobolectricTest() {
     @Test
     fun `back press returns to the deck list from a bottom navigation destination`() =
         deckPicker {
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val bottomNav = ActivityHomescreenBinding.bind(findViewById(R.id.root_layout)).bottomNavigation
             dispatchKeyEvent(keyDownEvent(KeyEvent.KEYCODE_3, KeyEvent.META_ALT_ON))
             advanceRobolectricLooper()
@@ -863,18 +867,25 @@ class DeckPickerTest : RobolectricTest() {
 
     @Test
     fun `back press on the deck list does not exit if 'exit via double tap' is set`() {
-        Prefs.sharedPrefs.edit { putBoolean(Prefs.key(R.string.exit_via_double_tap_back_key), true) }
-        deckPicker {
-            onBackPressedDispatcher.onBackPressed()
-            advanceRobolectricLooper()
+        // the preference outlives the test, so it is removed again below
+        val key = Prefs.key(R.string.exit_via_double_tap_back_key)
+        Prefs.sharedPrefs.edit { putBoolean(key, true) }
+        try {
+            deckPicker {
+                onBackPressedDispatcher.onBackPressed()
+                advanceRobolectricLooper()
 
-            assertThat("a single back press does not exit", isFinishing, equalTo(false))
+                assertThat("a single back press does not exit", isFinishing, equalTo(false))
+            }
+        } finally {
+            Prefs.sharedPrefs.edit { remove(key) }
         }
     }
 
     @Test
     fun `bottom navigation shortcuts are registered in keyboard shortcut help`() =
         deckPicker {
+            assumeTrue("Not running on tablet", qualifiers != "xlarge")
             val bottomNavigationShortcuts = shortcuts.shortcuts.filter { it.shortcut.startsWith("Alt+") }
 
             assertThat(
